@@ -22,13 +22,15 @@ Before writing any code for a new feature, page, or component:
 
 2. **File structure** (`project-standards` skill) — name every file in kebab-case with functional suffixes. Plan the directory layout. No barrel files.
 
-3. **API integration** (`data-flow` skill) — if the feature calls any API, create gateway functions (`.api.ts`), query hooks (`.queries.ts`), and mutation hooks (`.mutations.ts`) in the feature's `api/` directory. Set up Result types. Never call `fetch()` from feature code.
+3. **API integration** (`data-flow` skill) — if the feature calls any API, create gateway functions (`.api.ts`), query hooks (`.queries.ts`), and mutation hooks (`.mutations.ts`) in the feature's `api/` directory. Read `data-flow/references/errors.md` for Result type, ErrorBase, and ValidationError definitions. Set up these types in the feature. Never call `fetch()` from feature code.
 
 4. **Component structure** (`ui-patterns` skill):
    - **Forms with API calls** → always create three files: `.schema.ts`, `.controller.ts`, `.view.tsx`. Consult `ui-patterns/references/forms.md` for the full specification.
    - **Data display with loading/empty/error states** → always create three layers: `.controller.ts`, `.presenter.ts`, `.view.tsx`. Consult `ui-patterns/references/features-and-views.md` for the full specification.
 
 5. **Feature portability** (`architecture` skill) — verify features don't import from routes or sibling features. Toasts, navigation, and analytics happen via `onSuccess`/`onAction` callbacks, never inside the feature.
+
+6. **Test colocation** — every `.controller.ts` gets a colocated `.controller.test.ts`. Every `.presenter.ts` gets a `.presenter.test.ts`. Schemas and views are tested through their controller/presenter tests, not in separate files. Test files live next to the source they test — never in a separate `__tests__/` directory or top-level `tests/` folder.
 
 ## Output: What a Scaffolded Feature Looks Like
 
@@ -53,6 +55,8 @@ Use functional suffixes so file purpose is clear from the name:
 | `.controller.ts` | Logic hook — submission (forms) or orchestration (features) | `item-form.controller.ts` |
 | `.presenter.ts` | Pure function: raw data → view contract | `dashboard.presenter.ts` |
 | `.view.tsx` | Thin render component | `item-form.view.tsx` |
+| `.test.ts` | Colocated test file | `item-form.controller.test.ts` |
+| `.styles.ts` / `.module.css` | Colocated style file | `item-form.styles.ts` |
 
 ### Form feature (e.g. "create item")
 
@@ -66,7 +70,9 @@ features/items/
   create-item/
     item-form.schema.ts              ← Zod schema, single validation truth
     item-form.controller.ts          ← Submission logic: wraps mutations, error mapping, isPending
+    item-form.controller.test.ts     ← Tests for submission logic
     item-form.view.tsx               ← Thin render layer: form library setup + fields
+    item-form.styles.ts              ← Colocated styles (if applicable)
 ```
 
 The route file composes the feature and handles consequences:
@@ -89,8 +95,11 @@ features/items/
     items.queries.ts                 ← useItems, useSearchItems
   search/
     search.presenter.ts              ← Pure function: data → view contract with renderAs
+    search.presenter.test.ts         ← Tests for presenter logic
+    search.controller.ts             ← Controller: fetches data, wires presenter
+    search.controller.test.ts        ← Tests for controller logic
     search.view.tsx                  ← Renders the contract, no logic
-    search.controller.ts              ← Controller: fetches data, wires presenter
+    search.styles.ts                 ← Colocated styles (if applicable)
 ```
 
 ## What NOT to Generate
@@ -108,6 +117,8 @@ These are violations — if you see these patterns in your output, stop and fix 
 | All logic in one file | Split by concern: `.schema.ts` + `.controller.ts` + `.view.tsx` (forms) or `.controller.ts` + `.presenter.ts` + `.view.tsx` (features) |
 | Type-based directories (`hooks/`, `schemas/`, `components/`, `presenters/`) | Colocate by concern — related files live together in the same directory |
 | Query/mutation hooks in a `hooks/` folder | Colocate in `api/` next to the gateway file they wrap |
+| Tests in a separate `__tests__/` directory or top-level `tests/` folder | Colocate `.test.ts` files next to the source they test |
+| A `styles/` directory inside a feature | Colocate style files next to their view (e.g., `item-form.styles.ts` next to `item-form.view.tsx`) |
 
 ## When to Simplify
 

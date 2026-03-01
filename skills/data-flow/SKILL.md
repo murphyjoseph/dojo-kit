@@ -13,7 +13,7 @@ Functions that can fail return typed results. API operations follow a four-stage
 
 ## Project Context
 
-If `dojo-kit.yaml` exists at the project root, read it. Adapt the **Consume** stage examples to match `libraries.dataFetching`: `react-query` uses `useQuery`/`useMutation`, `swr` uses `useSWR`/`useSWRMutation`, `apollo` uses `useQuery`/`useMutation` from `@apollo/client`. If `libraries.validation` is set, use that library for request/response schemas in **Define** stage examples instead of the default `zod`. The Result type, error types, and Factory/Unpack stages are library-agnostic and do not change.
+If `dojo-kit.yaml` exists at the project root, read it. Adapt the **Consume** stage examples to match `libraries.dataFetching`: `react-query` uses `useQuery`/`useMutation`, `swr` uses `useSWR`/`useSWRMutation`, `apollo` uses `useQuery`/`useMutation` from `@apollo/client`. If `libraries.validation` is set, use that library for request/response schemas in **Define** stage examples instead of the default `zod`. If `libraries.httpClient` is set (e.g., `axios`, `ky`, `ofetch`, `got`), the gateway uses that library. If not set or `none`, scaffold a `fetchJson` utility in `platform/api/fetch-json.ts` as the gateway's transport layer. The Result type, error types, and Factory/Unpack stages are library-agnostic and do not change.
 
 ## Result Type
 

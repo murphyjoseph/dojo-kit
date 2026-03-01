@@ -123,33 +123,71 @@ Feature code never calls `fetch()`. A gateway abstraction handles:
 
 | Concern | Handled by |
 |---|---|
-| Request execution | Gateway core |
+| Request execution | `fetchJson` utility (or configured HTTP client) |
 | Auth token injection | Middleware |
 | Base URL resolution | Configuration |
 | Request/response logging | Middleware |
-| Headers (content-type, etc.) | Middleware |
+| Headers (content-type, etc.) | `fetchJson` sets JSON headers by default |
+
+### `fetchJson` Utility
+
+When no HTTP client library is specified in `dojo-kit.yaml` (or `libraries.httpClient` is `none`), scaffold this utility in `platform/api/fetch-json.ts`:
+
+```typescript
+// platform/api/fetch-json.ts
+interface FetchOptions extends Omit<RequestInit, 'body'> {
+  body?: unknown;
+}
+
+export async function fetchJson<T>(
+  url: string,
+  options: FetchOptions = {}
+): Promise<T> {
+  const { body, headers, ...rest } = options;
+
+  const response = await fetch(url, {
+    ...rest,
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      ...headers,
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+```
+
+### Gateway Using `fetchJson`
 
 ```typescript
 // platform/api/gateway.ts
+import { fetchJson } from './fetch-json';
+
 export function createGateway(config: GatewayConfig): Gateway {
   return {
     async get<T>(path: string): Promise<T> {
-      const response = await fetch(`${config.baseUrl}${path}`, {
+      return fetchJson<T>(`${config.baseUrl}${path}`, {
         headers: config.getHeaders(),
       });
-      return response.json();
     },
     async post<T>(path: string, body: unknown): Promise<T> {
-      const response = await fetch(`${config.baseUrl}${path}`, {
+      return fetchJson<T>(`${config.baseUrl}${path}`, {
         method: 'POST',
         headers: config.getHeaders(),
-        body: JSON.stringify(body),
+        body,
       });
-      return response.json();
     },
   };
 }
 ```
+
+> **If `dojo-kit.yaml` specifies `libraries.httpClient`, use that library instead of `fetchJson`.** For example, with `axios` the gateway would use `axios.get()` / `axios.post()` instead of `fetchJson`.
 
 **Auth is middleware, not feature code.** The gateway injects tokens. If the auth strategy changes, update the middleware — not every API call.
 

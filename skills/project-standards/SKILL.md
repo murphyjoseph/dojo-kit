@@ -38,6 +38,14 @@ If `dojo-kit.yaml` exists at the project root, read it. Use `project.packageMana
 | Never use underscores | `user_profile.ts` is wrong |
 | Match exports to filenames | `useAuthToken.ts` exports `useAuthToken` |
 
+## Styling
+
+| Rule | Example |
+|---|---|
+| Style files colocate with their view | `item-form.styles.ts` next to `item-form.view.tsx` |
+| Never create a `styles/` directory inside features | Styles belong beside the view they style |
+| File suffix matches the styling approach | `.module.css` for CSS Modules, `.styles.ts` for CSS-in-JS, `.css` for Tailwind (if a dedicated file is needed — most Tailwind is inline) |
+
 ## Commits
 
 | Rule | Enforced by |

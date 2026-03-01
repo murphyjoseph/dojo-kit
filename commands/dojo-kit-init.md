@@ -41,6 +41,7 @@ Scan `package.json` (and workspace root if monorepo) for known libraries:
 | Styling | `tailwindcss`, `styled-components`, `@emotion/*`, `vanilla-extract` |
 | Testing | `vitest`, `jest`, `@testing-library/*`, `playwright`, `cypress` |
 | UI library | `@radix-ui/*`, `@headlessui/*`, `@shadcn/ui`, `@mantine/*` |
+| HTTP client | `axios`, `ky`, `ofetch`, `got` |
 
 ### 3. Detect monorepo structure (if applicable)
 
