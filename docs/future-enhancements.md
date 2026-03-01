@@ -2,6 +2,10 @@
 
 Ideas that came up during planning but are tabled for later.
 
+## Skill Description Token Budget
+
+Most well-crafted plugin skills keep their `description` frontmatter under 100 tokens. Several of ours exceed 150 tokens — `scaffolding`, `data-flow`, and `architecture` are the worst offenders. Verbose descriptions waste context on every skill-matching evaluation, even when the skill isn't invoked. Audit each skill's description and tighten to under 100 tokens while preserving trigger accuracy. Key technique: move "when to use" examples and edge-case triggers into the skill body (which is only loaded on invocation) and keep the description to a single sentence that captures the core purpose.
+
 ## Automatic Activity Logging
 
 Claude maintains a running log of what it built/changed in `docs/activity/`. Could be automatic (hook on commit that prompts Claude to update the log) or on-demand. Risk: automatic means noise, on-demand means gaps. Needs experimentation.
@@ -128,3 +132,51 @@ After reviewing `dojo-kit.yaml`, detect the project's stack and suggest relevant
 - API-heavy project → suggest OpenAPI or GraphQL MCP servers for schema-aware assistance
 - Present suggestions during init or as a follow-up command, with instructions for adding them to `.mcp.json`
 - Don't auto-install — flag the opportunity and let the user decide
+
+## Testing Philosophy
+
+A skill that implements a pragmatic approach to testing. Likely needs somewhat different sections for backend vs frontend.
+
+- **Frontend testing strategy** — what to test at each layer: presenters get unit tests (pure functions, easy to assert), controllers get integration tests (mock API, verify orchestration), views get light smoke tests via Testing Library (render, verify key elements), schemas get validation edge-case tests
+- **Backend testing strategy** — route handler tests, service layer tests, database integration tests, contract tests for API boundaries
+- **Test naming and organization** — colocated test files (already enforced by scaffolding), naming conventions for describe/it blocks, test data factories vs inline fixtures
+- **What NOT to test** — type-level guarantees, framework internals, implementation details (don't test that `useState` was called)
+
+## Accessibility (a11y) Patterns
+
+Guidance for building accessible interfaces as a default, not an afterthought.
+
+- **WCAG compliance** — which level to target (AA as default), how to verify during development
+- **ARIA usage in forms** — proper labeling, error announcement, required field indication, form validation messages linked to fields via `aria-describedby`
+- **Focus management** — modal focus traps, focus restoration after dialogs close, skip navigation links, logical tab order
+- **Keyboard navigation** — all interactive elements reachable via keyboard, custom widgets implement appropriate keyboard patterns (arrow keys for menus, escape to close)
+- **Screen reader testing** — recommended tools (VoiceOver, NVDA), common pitfalls (decorative images without empty alt, live regions for dynamic content)
+- **Integration with ui-patterns** — forms skill should generate accessible markup by default, presenter contract should include accessibility-relevant flags
+
+## State Management Guidance
+
+Decision framework for choosing the right state location based on the configured library.
+
+- **Server state** (React Query, SWR, Apollo) — data from APIs, cached and synchronized. The default for anything fetched. Already covered by data-flow skill but needs a "when to use" framing
+- **Local state** (`useState`, `useReducer`) — component-scoped, ephemeral. Form field focus, dropdown open/closed, animation state
+- **URL state** (search params, path params) — shareable, bookmarkable. Filters, pagination, active tab, search queries
+- **Global state** (Zustand, Redux Toolkit, Jotai) — cross-component state that isn't server data. Auth status, theme, feature flags, shopping cart
+- **Decision table** — given a piece of state, which bucket does it belong in? Based on: does it come from the server? Does it need to survive navigation? Do multiple components need it? Should a URL capture it?
+
+## Error Boundaries
+
+React error boundary placement strategy and integration with the Result type system.
+
+- **Placement strategy** — route-level boundaries (catch entire page crashes), feature-level boundaries (isolate feature failures from the rest of the page), critical-component boundaries (wrap third-party widgets that might throw)
+- **Fallback UI patterns** — full-page error (route-level), inline error with retry button (feature-level), graceful degradation (hide broken widget, show rest of page)
+- **Recovery strategies** — retry rendering, reset component state, navigate away, refresh data
+- **Integration with Result types** — Result types handle *expected* failures (API errors, validation). Error boundaries handle *unexpected* failures (render crashes, broken invariants). They are complementary, not overlapping. A component that receives a `Result` error should display an error state, not throw to the boundary
+
+## Wire dojo-kit.yaml into More Skills
+
+Currently only the architecture skill adapts examples to configured libraries (e.g., route examples match the detected router). The data-flow and ui-patterns skills should do the same.
+
+- **data-flow** — gateway examples should use the configured `httpClient` (already being addressed). Query/mutation examples should match `dataFetching` library (partially done). Error handling examples should use the configured `validation` library for response schemas
+- **ui-patterns** — form examples should use the configured `forms` library (react-hook-form vs formik vs @tanstack/react-form). Validation examples should use the configured `validation` library. View examples should use the configured `styling` approach and `ui` component library
+- **scaffolding** — the orchestrator should pass library context to each skill it coordinates so generated code is immediately runnable with the project's actual dependencies
+- **Implementation approach** — each skill's "Project Context" section should expand to read more fields from `dojo-kit.yaml` and adapt examples accordingly. The YAML schema already captures these libraries; the skills just need to use them

@@ -30,6 +30,8 @@ File naming uses functional suffixes:
 | `.controller.ts` | Logic hook — form submission or feature orchestration |
 | `.presenter.ts` | Pure function: raw data → view contract |
 | `.view.tsx` | Thin render component |
+| `.test.ts` | Colocated test file |
+| `.styles.ts` / `.module.css` | Colocated style file |
 
 ### Feature Structure
 
@@ -43,8 +45,11 @@ features/<domain>/
   <concern>/                   # e.g. create-item/, search/, dashboard/
     <name>.schema.ts           # Form: validation schema
     <name>.controller.ts       # Form: submission logic / Feature: data orchestration
+    <name>.controller.test.ts  # Tests for controller logic
     <name>.view.tsx            # Form: render layer / Feature: renders presenter contract
     <name>.presenter.ts        # Feature only: pure data → view contract
+    <name>.presenter.test.ts   # Tests for presenter logic
+    <name>.styles.ts           # Colocated styles (if applicable)
 ```
 
 ### Patterns

@@ -33,6 +33,7 @@ libraries:
   forms: react-hook-form | formik | react-form | none
   validation: zod | yup | valibot | effect-schema | none
   styling: tailwind | styled-components | emotion | vanilla-extract | css-modules | none
+  httpClient: axios | ky | ofetch | got | none  # HTTP client library; when absent or none, use built-in fetchJson utility
   testing:
     unit: vitest | jest | none
     integration: testing-library | none
