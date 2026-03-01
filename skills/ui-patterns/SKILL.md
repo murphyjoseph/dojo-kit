@@ -22,19 +22,19 @@ Forms separate API logic from rendering via a custom hook. Features separate dec
 
 These rules are **library-agnostic** — they apply whether you use react-hook-form, TanStack Form, Formik, or anything else. The separation is structural, not API-level.
 
-A form separates into three concerns — the submission hook is the non-negotiable separation:
+A form separates into three concerns — the controller is the non-negotiable separation:
 
 | Concern | File | Owns | Does not own |
 |---|---|---|---|
 | **Schema** | `item-form.schema.ts` | Every field, constraint, error message | Submission, rendering, side effects |
-| **Submission hook** | `use-item-form.ts` | API calls, mutations, error mapping, payload construction, pending state | Rendering, navigation, what happens after success |
-| **Component** | `item-form.tsx` | Form library setup, field composition, layout, wiring the hook | Validation logic, API calls, deciding post-success behavior |
+| **Controller** | `item-form.controller.ts` | API calls, mutations, error mapping, payload construction, pending state | Rendering, navigation, what happens after success |
+| **View** | `item-form.view.tsx` | Form library setup, field composition, layout, wiring the controller | Validation logic, API calls, deciding post-success behavior |
 
 Extract form configuration (defaults, resolver setup) into its own file when defaults are computed from server data or user preferences. For static defaults, inline in the component.
 
-**The submission hook is mandatory.** Any form that calls an API gets a custom hook in its own file. The hook owns every mutation, every `mutateAsync` call, every payload transformation, every error mapping. It returns `{ handleSubmit, isPending, error }`. The component calls this hook — it never imports mutations directly.
+**The controller is mandatory.** Any form that calls an API gets a controller in its own `.controller.ts` file. The controller owns every mutation, every `mutateAsync` call, every payload transformation, every error mapping. It returns `{ handleSubmit, isPending, error }`. The view calls this controller — it never imports mutations directly.
 
-**Never inline mutations in the component.** If you see `useCreateItem()` or `useMutation()` called inside a form component, that's a violation. Mutations live in the submission hook.
+**Never inline mutations in the view.** If you see `useCreateItem()` or `useMutation()` called inside a form view component, that's a violation. Mutations live in the controller.
 
 **The form doesn't decide what happens after success.** It fires `onSuccess`. The parent (page, modal, flow step) handles navigation, toasts, analytics, and state transitions. The form never calls `toaster`, `router.push`, or closes itself.
 
@@ -51,7 +51,7 @@ const handleSuccess = (data: Item) => {
 
 ### Form Anti-Pattern: The Monolith
 
-This is what happens when the submission hook is skipped — **do not generate this**:
+This is what happens when the controller is skipped — **do not generate this**:
 
 ```typescript
 // BAD — every line marked is a violation
@@ -71,7 +71,7 @@ function CreateItemPage() {
 }
 ```
 
-The correct version has three files (schema + submission hook + component) as specified above. The form fires `onSuccess`; the parent handles toasts, navigation, and resets.
+The correct version has three files (`.schema.ts` + `.controller.ts` + `.view.tsx`) as specified above. The form fires `onSuccess`; the parent handles toasts, navigation, and resets.
 
 ### Expected Files for a Form Feature
 
@@ -80,8 +80,8 @@ When scaffolding a form with an API call (e.g. "item form"), colocate all form f
 ```
 features/<domain>/<concern>/
   <name>-form.schema.ts              ← Zod schema, types
-  use-<name>-form.ts                 ← Submission hook
-  <name>-form.tsx                    ← Thin render component
+  <name>-form.controller.ts          ← Submission logic: wraps mutations, error mapping
+  <name>-form.view.tsx               ← Thin render component
 ```
 
 Never scatter these across `schemas/`, `hooks/`, `components/` directories. They belong together.
@@ -90,11 +90,11 @@ Never scatter these across `schemas/`, `hooks/`, `components/` directories. They
 
 A feature with state and business logic separates into three layers:
 
-| Layer | Responsibility | Uses framework? |
-|---|---|---|
-| **Orchestrate** | Fetch data, manage state, own side effects | Yes (hooks, context) |
-| **Present** | Pure function: raw data → view contract | No |
-| **Render** | Draw the contract, fire callbacks | Yes (JSX) |
+| Layer | File suffix | Responsibility | Uses framework? |
+|---|---|---|---|
+| **Controller** | `.controller.ts` | Fetch data, manage state, own side effects | Yes (hooks, context) |
+| **Presenter** | `.presenter.ts` | Pure function: raw data → view contract | No |
+| **View** | `.view.tsx` | Draw the contract, fire callbacks | Yes (JSX) |
 
 ### View Contract Shape
 
@@ -114,20 +114,20 @@ When scaffolding a component with loading/empty/error states (e.g. "team members
 ```
 features/<domain>/<concern>/
   <name>.presenter.ts                ← Pure presenter function
-  <name>-view.tsx                    ← View component
-  use-<name>.ts                      ← Orchestrator hook
+  <name>.view.tsx                    ← View component
+  <name>.controller.ts              ← Orchestrator: fetches data, wires presenter
 ```
 
 Never put presenters in a separate `presenters/` directory — they belong next to the view they serve.
 
 ### Feature Anti-Pattern: The Kitchen Sink Component
 
-This is what happens when orchestrate/present/render aren't separated — **do not generate this**:
+This is what happens when controller/presenter/view aren't separated — **do not generate this**:
 
 ```typescript
 // BAD — data fetching, conditional logic, and rendering in one component
 function SearchPage() {
-  const { data, isLoading, error } = useQuery({ ... });       // orchestration mixed with rendering
+  const { data, isLoading, error } = useQuery({ ... });       // controller logic mixed with rendering
 
   return (
     <>
@@ -140,7 +140,7 @@ function SearchPage() {
 }
 ```
 
-The correct version uses an orchestrator hook (owns data fetching), a presenter pure function (returns a `renderAs` contract), and a view component (narrows on `renderAs`, renders the contract).
+The correct version uses a controller (owns data fetching), a presenter pure function (returns a `renderAs` contract), and a view (narrows on `renderAs`, renders the contract).
 
 ## Mandatory Reference Loading
 
@@ -155,13 +155,13 @@ Do not skip reference loading when scaffolding from scratch. The references cont
 
 | Signal | Pattern |
 |---|---|
-| Form with 2+ fields or an API call | Form pattern — always (schema + submission hook + component in separate files) |
+| Form with 2+ fields or an API call | Form pattern — always (`.schema.ts` + `.controller.ts` + `.view.tsx` in separate files) |
 | Form with 1 field, no API call | Inline — the separation is overhead |
-| Component that fetches data or has loading/empty/error states | Feature/view pattern (orchestrate/present/render) |
-| Component with conditional logic, computed display, permission-based UI | Feature/view pattern (orchestrate/present/render) |
+| Component that fetches data or has loading/empty/error states | Feature/view pattern (`.controller.ts` + `.presenter.ts` + `.view.tsx`) |
+| Component with conditional logic, computed display, permission-based UI | Feature/view pattern (`.controller.ts` + `.presenter.ts` + `.view.tsx`) |
 | Static component that receives props and renders | No pattern needed |
 
 ## References
 
-- **`references/forms.md`** — Full form specification: schema design, submission hook lifecycle, error flow, `onSuccess`/`onFailure` contracts, when to simplify
-- **`references/features-and-views.md`** — Feature/view specification: presenter function design, view contract typing, orchestrator wiring, when not to bother
+- **`references/forms.md`** — Full form specification: schema design, controller lifecycle, error flow, `onSuccess`/`onFailure` contracts, when to simplify
+- **`references/features-and-views.md`** — Feature/view specification: presenter function design, view contract typing, controller wiring, when not to bother

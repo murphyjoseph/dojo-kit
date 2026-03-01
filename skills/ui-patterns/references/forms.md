@@ -6,9 +6,9 @@ How to structure forms so that validation, submission, and rendering are separat
 
 | Rule | Description |
 |---|---|
-| Submission hook is mandatory | Any form with an API call gets a custom hook in its own file |
-| Mutations never live in the component | `useCreateItem()`, `useMutation()` etc. belong in the submission hook |
-| One schema is the validation truth | Nothing else validates — not the component, not the handler |
+| Controller is mandatory | Any form with an API call gets a `.controller.ts` in its own file |
+| Mutations never live in the view | `useCreateItem()`, `useMutation()` etc. belong in the controller |
+| One schema is the validation truth | Nothing else validates — not the view, not the handler |
 | The form doesn't decide what happens next | It fires `onSuccess`; the parent handles consequences |
 
 ## The Three Concerns
@@ -33,12 +33,12 @@ export type ItemFormValues = z.infer<typeof itemFormSchema>;
 
 **Testable without rendering:** pass an object, assert valid or invalid.
 
-### 2. Submission Hook (Non-Negotiable)
+### 2. Controller (Non-Negotiable)
 
-This is the critical separation. The submission hook owns every API call, mutation, payload transformation, and error mapping. It returns a submit handler and state — nothing about rendering.
+This is the critical separation. The controller owns every API call, mutation, payload transformation, and error mapping. It returns a submit handler and state — nothing about rendering.
 
 ```typescript
-// features/items/create-item/use-item-form.ts
+// features/items/create-item/item-form.controller.ts
 
 interface UseItemFormOptions {
   item?: Item | null;
@@ -92,12 +92,12 @@ export function useItemForm({ item, onSuccess }: UseItemFormOptions) {
 - Rendering or JSX
 - Navigation, toasts, or dialog closing (that's `onSuccess`)
 
-### 3. Component (Thin Render Layer)
+### 3. View (Thin Render Layer)
 
-The component sets up the form library, composes fields, and wires the submission hook. It does not import mutations, construct payloads, or decide what happens after success.
+The view sets up the form library, composes fields, and wires the controller. It does not import mutations, construct payloads, or decide what happens after success.
 
 ```typescript
-// features/items/create-item/item-form.tsx
+// features/items/create-item/item-form.view.tsx
 
 interface ItemFormProps {
   item?: Item | null;
@@ -131,26 +131,26 @@ export function ItemForm({ item, onSuccess }: ItemFormProps) {
 }
 ```
 
-**The component imports the submission hook, not the mutations.** If you see `useCreateItem()` or `useMutation()` in a form component file, that's a violation.
+**The view imports the controller, not the mutations.** If you see `useCreateItem()` or `useMutation()` in a `.view.tsx` file, that's a violation.
 
 ## Anti-Pattern: The Monolith Form
 
-This is what happens when the submission hook is skipped. Everything ends up in one component:
+This is what happens when the controller is skipped. Everything ends up in one file:
 
 ```typescript
 // BAD — mutations, payload construction, and rendering in one file
 export function ItemForm({ item, onOpenChange }) {
-  const createMutation = useCreateItem();      // violation: mutation in component
-  const updateMutation = useUpdateItem();      // violation: mutation in component
+  const createMutation = useCreateItem();      // violation: mutation in view
+  const updateMutation = useUpdateItem();      // violation: mutation in view
 
   const form = useForm({
     defaultValues: { /* ... */ },
     onSubmit: async ({ value }) => {
-      const payload = { /* ... */ };            // violation: payload construction in component
+      const payload = { /* ... */ };            // violation: payload construction in view
       if (isEdit) {
-        await updateMutation.mutateAsync(...);  // violation: API call in component
+        await updateMutation.mutateAsync(...);  // violation: API call in view
       } else {
-        await createMutation.mutateAsync(...);  // violation: API call in component
+        await createMutation.mutateAsync(...);  // violation: API call in view
       }
       onOpenChange(false);                      // violation: form decides what happens after success
     },
@@ -173,13 +173,13 @@ Client-side validation fails
   → Schema error messages appear on fields (handled by form library)
 
 Server-side validation fails
-  → Submission hook maps field errors back to the form
+  → Controller maps field errors back to the form
 
 Unexpected server error
-  → Submission hook surfaces a form-level error
+  → Controller surfaces a form-level error
 
 Network error
-  → Submission hook surfaces a form-level error (or retry prompt)
+  → Controller surfaces a form-level error (or retry prompt)
 ```
 
 Each error type has exactly one handler. No ambiguity about which layer handles which kind of failure.
@@ -208,22 +208,22 @@ This means the same form works in a full page, a modal, a multi-step flow, or a 
 
 ## Extract Configuration When Needed
 
-Form library setup (default values, resolver, validation wiring) lives in the component by default. Extract it into its own hook when:
+Form library setup (default values, resolver, validation wiring) lives in the view by default. Extract it into its own hook when:
 
 | Signal | Action |
 |---|---|
 | Defaults are computed from server data or user preferences | Extract `useItemFormConfig()` |
-| Multiple components use the same form setup | Extract shared config hook |
-| Static defaults, simple form | Inline in the component — no need to extract |
+| Multiple views use the same form setup | Extract shared config hook |
+| Static defaults, simple form | Inline in the view — no need to extract |
 
 ## Decision Guide
 
 | Situation | Action |
 |---|---|
-| Form with an API call | Extract submission hook — always |
-| Form with 2+ fields and validation | Schema in its own file, submission hook in its own file |
+| Form with an API call | Extract controller — always |
+| Form with 2+ fields and validation | Schema in its own file, controller in its own file |
 | Simple form (1–2 fields, no API call) | Inline everything in one component |
-| Submit handler > 10 lines | Extract submission hook |
+| Submit handler > 10 lines | Extract controller |
 | Same form in multiple contexts | Ensure `onSuccess`/`onFailure` props, not hardcoded behavior |
-| Need to test submission logic without rendering | Extract submission hook |
+| Need to test submission logic without rendering | Extract controller |
 | Form needs computed defaults from server data | Extract configuration hook |

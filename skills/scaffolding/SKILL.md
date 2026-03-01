@@ -22,11 +22,11 @@ Before writing any code for a new feature, page, or component:
 
 2. **File structure** (`project-standards` skill) — name every file in kebab-case with functional suffixes. Plan the directory layout. No barrel files.
 
-3. **API integration** (`data-flow` skill) — if the feature calls any API, create the pipeline files (definition, unpack, factory, consumer hook). Set up Result types. Never call `fetch()` from feature code.
+3. **API integration** (`data-flow` skill) — if the feature calls any API, create gateway functions (`.api.ts`), query hooks (`.queries.ts`), and mutation hooks (`.mutations.ts`) in the feature's `api/` directory. Set up Result types. Never call `fetch()` from feature code.
 
 4. **Component structure** (`ui-patterns` skill):
-   - **Forms with API calls** → always create three files: schema, submission hook, component. Consult `ui-patterns/references/forms.md` for the full specification.
-   - **Data display with loading/empty/error states** → always create three layers: orchestrator hook, presenter function, view component. Consult `ui-patterns/references/features-and-views.md` for the full specification.
+   - **Forms with API calls** → always create three files: `.schema.ts`, `.controller.ts`, `.view.tsx`. Consult `ui-patterns/references/forms.md` for the full specification.
+   - **Data display with loading/empty/error states** → always create three layers: `.controller.ts`, `.presenter.ts`, `.view.tsx`. Consult `ui-patterns/references/features-and-views.md` for the full specification.
 
 5. **Feature portability** (`architecture` skill) — verify features don't import from routes or sibling features. Toasts, navigation, and analytics happen via `onSuccess`/`onAction` callbacks, never inside the feature.
 
@@ -34,7 +34,25 @@ Before writing any code for a new feature, page, or component:
 
 ### Colocation Principle
 
-**Organize by concern, not by file type.** Never create type-based directories like `hooks/`, `schemas/`, `presenters/`, `components/` that scatter related files. Instead, colocate files that work together. Shared types and API files live at the feature root or in `api/`. Each concern (form, dashboard, search) gets its own sub-directory when the feature has multiple concerns.
+**Organize by concern, not by file type.** Never create type-based directories like `hooks/`, `schemas/`, `presenters/`, `components/` that scatter related files. Instead, colocate files that work together.
+
+- **API files** (gateway + query/mutation hooks) colocate in `api/` within the feature
+- **Each concern** (form, dashboard, search) gets its own sub-directory with its controller, view, presenter, and schema colocated together
+- **API promotes** from `features/<domain>/api/` to `platform/api/` only when multiple features need the same endpoints
+
+### File Naming Convention
+
+Use functional suffixes so file purpose is clear from the name:
+
+| Suffix | Role | Example |
+|---|---|---|
+| `.api.ts` | Gateway functions (fetch wrappers) | `items.api.ts` |
+| `.queries.ts` | React Query query hooks (grouped per domain) | `items.queries.ts` |
+| `.mutations.ts` | React Query mutation hooks (grouped per domain) | `items.mutations.ts` |
+| `.schema.ts` | Zod validation schema | `item-form.schema.ts` |
+| `.controller.ts` | Logic hook — submission (forms) or orchestration (features) | `item-form.controller.ts` |
+| `.presenter.ts` | Pure function: raw data → view contract | `dashboard.presenter.ts` |
+| `.view.tsx` | Thin render component | `item-form.view.tsx` |
 
 ### Form feature (e.g. "create item")
 
@@ -43,11 +61,12 @@ features/items/
   types.ts                           ← Shared type definitions
   api/
     items.api.ts                     ← Gateway functions
-    items.unpack.ts                  ← Response → Result normalization
+    items.queries.ts                 ← useItems, useSearchItems
+    items.mutations.ts               ← useCreateItem, useUpdateItem, useDeleteItem
   create-item/
     item-form.schema.ts              ← Zod schema, single validation truth
-    use-item-form.ts                 ← Submission hook: mutations, error mapping, isPending
-    item-form.tsx                    ← Thin render layer: form library setup + fields
+    item-form.controller.ts          ← Submission logic: wraps mutations, error mapping, isPending
+    item-form.view.tsx               ← Thin render layer: form library setup + fields
 ```
 
 The route file composes the feature and handles consequences:
@@ -67,11 +86,11 @@ features/items/
   types.ts                           ← Shared type definitions
   api/
     items.api.ts                     ← Gateway functions
-    items.unpack.ts                  ← Response → Result normalization
+    items.queries.ts                 ← useItems, useSearchItems
   search/
     search.presenter.ts              ← Pure function: data → view contract with renderAs
-    search-view.tsx                  ← Renders the contract, no logic
-    use-search-items.ts              ← Orchestrator: fetches data, manages state
+    search.view.tsx                  ← Renders the contract, no logic
+    search.controller.ts              ← Controller: fetches data, wires presenter
 ```
 
 ## What NOT to Generate
@@ -80,14 +99,15 @@ These are violations — if you see these patterns in your output, stop and fix 
 
 | Violation | Correct approach |
 |---|---|
-| `useMutation()` inside a form component | Move to submission hook |
+| `useMutation()` inside a form component | Move to `.controller.ts` |
 | `toaster.create()` inside a feature | Fire `onSuccess`, let route handle toasts |
 | `router.push()` inside a feature | Fire `onSuccess`, let route handle navigation |
 | `useState` per field instead of a form library + schema | Use schema file + form library |
-| Inline `fetch()` or direct API client call in feature | Use the API pipeline (define/unpack/factory/consume) |
-| Loading/empty/error handled with inline ternaries in one component | Use presenter + view contract with `renderAs` |
-| All logic in one file | Split by concern: schema, hook, component (forms) or orchestrator, presenter, view (features) |
+| Inline `fetch()` or direct API client call in feature | Use gateway (`.api.ts`) + query/mutation hooks (`.queries.ts`/`.mutations.ts`) |
+| Loading/empty/error handled with inline ternaries in one component | Use `.presenter.ts` + `.view.tsx` with `renderAs` contract |
+| All logic in one file | Split by concern: `.schema.ts` + `.controller.ts` + `.view.tsx` (forms) or `.controller.ts` + `.presenter.ts` + `.view.tsx` (features) |
 | Type-based directories (`hooks/`, `schemas/`, `components/`, `presenters/`) | Colocate by concern — related files live together in the same directory |
+| Query/mutation hooks in a `hooks/` folder | Colocate in `api/` next to the gateway file they wrap |
 
 ## When to Simplify
 
@@ -96,6 +116,6 @@ Not every page needs the full pipeline. Use judgment:
 | Situation | Approach |
 |---|---|
 | Static page with no API calls or state | No pattern needed — just a component |
-| Simple display with one API call, no error/empty states | Orchestrator hook + component (skip presenter) |
+| Simple display with one API call, no error/empty states | Controller + view (skip presenter) |
 | Form with 1 field, no API call | Inline — the separation is overhead |
 | Prototype or proof of concept | Note that patterns are skipped, apply later |

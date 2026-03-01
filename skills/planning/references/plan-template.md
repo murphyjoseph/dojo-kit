@@ -126,7 +126,7 @@ Trace the full path, not just the happy path. For API work, map to the four-stag
 
 ### UI Plan
 
-Use the `ui-patterns` skill's form architecture (schema/config/hook/component) for any forms. For feature components, apply the feature/view separation pattern (orchestrate/present/render). Mark this section N/A with a reason for non-visual work.
+Use the `ui-patterns` skill's form architecture (`.schema.ts` / `.controller.ts` / `.view.tsx`) for any forms. For feature components, apply the feature/view separation pattern (`.controller.ts` / `.presenter.ts` / `.view.tsx`). Mark this section N/A with a reason for non-visual work.
 
 ### Testing Strategy
 

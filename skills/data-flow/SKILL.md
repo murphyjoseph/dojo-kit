@@ -50,7 +50,34 @@ Don't create `NetworkError`, `TimeoutError`, etc. Use `ErrorBase` with a specifi
 
 ## API Pipeline
 
-Every API operation follows four stages:
+### REST APIs (default)
+
+Most web apps use REST with straightforward JSON responses. Use a simple three-file pattern:
+
+| File | Role | Example |
+|---|---|---|
+| `.api.ts` | Gateway functions — typed fetch wrappers | `items.api.ts` |
+| `.queries.ts` | React Query query hooks (grouped per domain) | `items.queries.ts` |
+| `.mutations.ts` | React Query mutation hooks (grouped per domain) | `items.mutations.ts` |
+
+**Gateway rule:** feature code never calls `fetch()` directly. The `.api.ts` file handles request execution, auth injection, base URL, and logging. Auth is middleware — feature code doesn't think about tokens.
+
+### Expected Files for a REST API Integration
+
+All API files colocate in the feature's `api/` directory — gateway, queries, and mutations together:
+
+```
+features/<domain>/api/
+  <domain>.api.ts                    ← Gateway functions (all endpoints for this domain)
+  <domain>.queries.ts                ← React Query query hooks: useItems, useSearchItems, etc.
+  <domain>.mutations.ts              ← React Query mutation hooks: useCreateItem, useUpdateItem, etc.
+```
+
+API files promote from `features/<domain>/api/` to `platform/api/` only when multiple features need the same endpoints. Until then, keep them feature-scoped.
+
+### Complex APIs (GraphQL, polymorphic responses)
+
+When response shapes are polymorphic or need explicit discrimination (GraphQL with partial errors, REST endpoints that return different shapes per status code), add an unpack stage:
 
 | Stage | Responsibility | Testability |
 |---|---|---|
@@ -59,21 +86,7 @@ Every API operation follows four stages:
 | **Factory** | Wrap transport in `try/catch`, return typed operations | Mock the gateway, test with plain calls |
 | **Consume** | Wire into framework (React Query hook, server loader) | Mock the factory |
 
-**Gateway rule:** feature code never calls `fetch()` directly. A gateway handles request execution, auth injection, base URL resolution, and logging. Auth is middleware — feature code doesn't think about tokens.
-
-### Expected Files for an API Integration
-
-API files live in the feature's `api/` directory since they're shared across concerns. Consumer hooks colocate with the concern that uses them.
-
-```
-features/<domain>/api/
-  <domain>.api.ts                    ← Gateway functions (all endpoints for this domain)
-  <domain>.unpack.ts                 ← Response variants → Result normalization
-features/<domain>/<concern>/
-  use-<name>.ts                      ← Framework consumer hook (colocated with its concern)
-```
-
-For simple, single-use API calls, combine gateway + unpack into one file. Use separate files when an API call is reused or its response shape has multiple variants.
+Consult `references/api-pipeline.md` for the full four-stage pipeline specification. Use it when you copy-paste an API call, or a response shape change breaks something because the discrimination wasn't explicit.
 
 ## Decision Triggers
 

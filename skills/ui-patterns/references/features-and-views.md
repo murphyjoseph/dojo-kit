@@ -6,19 +6,19 @@ How to separate "deciding what to show" from "showing it" so that business logic
 
 | Rule | Description |
 |---|---|
-| Three layers | Orchestrate → Present → Render |
+| Three layers | Controller → Presenter → View |
 | Presenter is a pure function | Input data → output contract, no hooks or side effects |
 | View renders the contract | No business logic, no data fetching, narrows on `renderAs` |
 | View contract has four sections | `renderAs`, `display`, `instructions`, `effects` |
 
 ## The Three Layers
 
-### Orchestrate
+### Controller
 
-Fetches data, manages state, owns side effects. Uses framework primitives (hooks, routers, context). Thin — calls the other two layers and wires them together.
+Fetches data, manages state, owns side effects. Uses framework primitives (hooks, routers, context). Thin — calls the other two layers and wires them together. Lives in a `.controller.ts` file.
 
 ```typescript
-// features/team/members/use-team-members.ts
+// features/team/members/team-members.controller.ts
 export function useTeamMembers(teamId: string) {
   const { data, isLoading, error } = useQuery(['team', teamId], () =>
     getTeamMembers(teamId)
@@ -59,7 +59,7 @@ export function presentTeamMembers(input: {
         errorMessage: input.error.displayMessage ?? 'Failed to load team members',
       },
       effects: {
-        onRetry: undefined, // orchestrator will provide this
+        onRetry: undefined, // controller will provide this
       },
     };
   }
@@ -104,12 +104,12 @@ const contract = presentTeamMembers({
 expect(contract.renderAs).toBe('loading');
 ```
 
-### Render
+### View
 
-Receives the contract and draws it. No data fetching, no business logic. Narrows on `renderAs`.
+Receives the contract and draws it. No data fetching, no business logic. Narrows on `renderAs`. Lives in a `.view.tsx` file.
 
 ```typescript
-// features/team/members/team-members-view.tsx
+// features/team/members/team-members.view.tsx
 export function TeamMembersView(props: TeamMembersContract) {
   if (props.renderAs === 'loading') {
     return <Skeleton />;
@@ -183,7 +183,7 @@ type TeamMembersContract =
 | `renderAs` | Discriminated union — which visual mode | Presenter |
 | `display` | Formatted, render-ready data (strings, not raw objects) | Presenter |
 | `instructions` | Boolean flags the view checks | Presenter |
-| `effects` | Callbacks the view can fire | Orchestrator provides, presenter passes through |
+| `effects` | Callbacks the view can fire | Controller provides, presenter passes through |
 
 ## Debugging with the Contract
 
