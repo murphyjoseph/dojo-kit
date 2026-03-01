@@ -2,5 +2,9 @@
   "name": "dojo-kit",
   "version": "1.0.0",
   "description": "Web-focused drop-in toolkit for Claude Code — architecture skills, project standards, and workflow automation.",
-  "keywords": ["architecture", "frontend", "standards", "workflow", "skills"]
+  "keywords": ["architecture", "frontend", "standards", "workflow", "skills"],
+  "author": "Codedojoe",
+  "license": "MIT",
+  "repository": "https://github.com/murphyjoseph/dojo-kit",
+  "homepage": "https://github.com/murphyjoseph/dojo-kit#readme"
 }

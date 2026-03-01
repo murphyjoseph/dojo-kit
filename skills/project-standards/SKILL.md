@@ -9,6 +9,10 @@ description: Hard rules for project hygiene. Use when installing dependencies,
 
 Non-negotiable rules that apply to every file, package, and dependency decision.
 
+## Project Context
+
+If `dojo-kit.yaml` exists at the project root, read it. Use `project.packageManager` for all install commands and lockfile references. The rules below are universal — only the specific commands (`pnpm add`, `npm install`, `yarn add`, `bun add`) and lockfile names adapt.
+
 ## Dependencies
 
 | Rule | Rationale |

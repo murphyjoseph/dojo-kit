@@ -10,6 +10,15 @@ description: Form architecture and feature/view separation patterns. Use when
 
 Forms separate into four concerns. Features separate deciding-what-to-show from showing-it. Components don't accumulate responsibilities beyond their layer.
 
+## Project Context
+
+If `dojo-kit.yaml` exists at the project root, read it. Adapt form examples to match `libraries.forms` and `libraries.validation`:
+
+- **forms:** `react-hook-form` → `useForm`, `zodResolver` (default). `formik` → `useFormik`, `validationSchema`. `react-form` → `useForm` from `@tanstack/react-form`.
+- **validation:** `zod` → `z.object(...)` (default). `yup` → `yup.object(...)`. `valibot` → `v.object(...)`.
+
+The four-concern structure and onSuccess/onFailure contract are the same regardless of library. Only the form wiring API changes.
+
 ## Form Pattern
 
 A form is four concerns:

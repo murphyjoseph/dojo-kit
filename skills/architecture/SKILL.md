@@ -10,6 +10,16 @@ description: Boundary-first architecture and service patterns. Use when creating
 
 Enforce boundary-first architecture. Imports flow downward, never upward or sideways. Every file's blast radius is knowable from its location.
 
+## Project Context
+
+If `dojo-kit.yaml` exists at the project root, read it. Adapt `app/` layer examples to `apps[].framework`:
+
+- **next** (App Router) → `app/` maps to `app/(routes)/`, route components are `page.tsx` beside `layout.tsx`
+- **remix** → `app/` maps to `app/routes/`, loaders and actions live in route files
+- **vite** (SPA) → `app/` is a convention you impose; no file-system router
+
+The import hierarchy and boundary rules are framework-agnostic. Only the physical location of the `app/` layer and its file-naming conventions differ.
+
 ## Import Hierarchy
 
 ```

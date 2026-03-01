@@ -6,7 +6,7 @@ A web-focused drop-in plugin for Claude Code — architecture skills, project st
 
 dojo-kit is a [Claude Code plugin](https://docs.anthropic.com/en/docs/claude-code). It teaches Claude how to structure web projects by providing opinionated skills for architecture, data flow, UI patterns, and day-to-day workflows like commits and PRs. No code generation — just well-written guidance that Claude reads and follows in context.
 
-> **Note:** dojo-kit is currently built around the JavaScript/TypeScript/Node ecosystem. The architecture and workflow skills (commits, PRs, project standards) are language-agnostic, but the data-flow, UI, and package patterns assume JS/TS tooling. Support for other ecosystems (Python, Go, etc.) is not yet in scope.
+> **Note:** dojo-kit is currently optimized for **frontend** web development in the JavaScript/TypeScript/Node ecosystem. The architecture, data-flow, and UI skills target React-based SPAs and SSR frameworks (Next.js, Remix, Vite). Workflow skills (commits, PRs, project standards) are language-agnostic. **Backend-specific patterns** (API design, database layers, queue workers) are on the roadmap but not yet included.
 
 ## Install
 
@@ -31,7 +31,7 @@ After cloning, run `pnpm install` to set up commitlint, ESLint, and git hooks.
 
 ### Skills
 
-Seven skills activate automatically based on what you're doing:
+Eight skills activate automatically based on what you're doing:
 
 | Skill | What it teaches Claude |
 | --- | --- |
@@ -42,6 +42,7 @@ Seven skills activate automatically based on what you're doing:
 | **project-standards** | Hard rules — no global installs, kebab-case files, conventional commits, no barrel files, OWASP compliance |
 | **commit** | When to commit, how to scope changes, conventional commit message format |
 | **pull-request** | PR scoping, template population, `gh pr create` workflow |
+| **claude-md-improver** | Audit, evaluate, and improve CLAUDE.md files — quality scoring, targeted updates, templates by project type |
 
 Each skill follows progressive disclosure: a concise `SKILL.md` stays in context, with detailed `references/` loaded only when needed.
 
@@ -68,7 +69,7 @@ Each skill follows progressive disclosure: a concise `SKILL.md` stays in context
 
 ```
 .claude-plugin/plugin.json   Plugin manifest
-skills/                      6 skills with reference docs
+skills/                      8 skills with reference docs
 commands/                    Slash commands
 hooks/hooks.json             Hook definitions
 scripts/                     Hook and git hook scripts
@@ -78,7 +79,7 @@ docs/decisions/              Architecture decision records
 
 ## Acknowledgments
 
-The `frontend-design` skill is adapted from [Anthropic's Claude Code](https://claude.ai/code) default skills, licensed under Apache 2.0.
+The `frontend-design` and `claude-md-improver` skills are adapted from [Anthropic's Claude Code](https://claude.ai/code) default skills, licensed under Apache 2.0.
 
 ## License
 
