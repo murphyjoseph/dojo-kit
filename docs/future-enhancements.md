@@ -28,6 +28,10 @@ The init command detects ESLint or Biome but doesn't act on it. Future: `dojo-ki
 
 Generate ESLint `import/no-restricted-paths` rules (or Biome import restrictions, or tsconfig path restrictions) from the boundary-first architecture automatically. The init command could scaffold these based on the project structure. Referenced in the boundary doc as "something worth building." Ties into the linter configuration enhancement above — boundary enforcement is the highest-value generated rule.
 
+## Vendored Skill Sync Strategy
+
+`frontend-design` and `claude-md-improver` are vendored from Anthropic's official skills (Apache 2.0) into `skills/`. The `skills-lock.json` still references them as external sources. This creates two sources of truth — local copies will drift from upstream as Anthropic updates the originals. Need to decide: (a) fully own them locally and remove the `skills-lock.json` entries, or (b) remove local copies and rely on the marketplace, or (c) build a sync mechanism that pulls upstream changes and lets us merge/diff. Decision deferred until we see how often upstream changes and whether we need to customize the content.
+
 ## Framework-Specific Reference Files
 
 Swap-in reference files per framework — e.g., Next.js App Router conventions vs TanStack Start conventions. The core skill stays generic, but a reference file provides framework-specific examples. Init could select the right ones based on `dojo-kit.yaml`.
