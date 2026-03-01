@@ -20,7 +20,7 @@ Add a `.claude/settings.json` to your project root:
     "codedojoe": {
       "source": {
         "source": "github",
-        "repo": "codedojoe/claude-plugins"
+        "repo": "murphyjoseph/claude-plugins"
       }
     }
   },
