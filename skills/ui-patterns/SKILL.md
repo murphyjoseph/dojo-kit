@@ -49,6 +49,40 @@ const handleSuccess = (data: Item) => {
 // The form knows nothing about toasts, routing, or closing dialogs.
 ```
 
+### Form Anti-Pattern: The Monolith
+
+This is what happens when the submission hook is skipped — **do not generate this**:
+
+```typescript
+// BAD — every line marked is a violation
+function CreateItemPage() {
+  const mutation = useMutation({ mutationFn: createItem });  // violation: mutation in component
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    mutation.mutate(payload, {
+      onSuccess: () => {
+        toaster.success({ title: 'Created' });               // violation: form decides consequences
+        setTitle('');                                          // violation: manual field reset
+      },
+    });
+  };
+  // ... useState per field, inline rendering
+}
+```
+
+The correct version has three files (schema + submission hook + component) as specified above. The form fires `onSuccess`; the parent handles toasts, navigation, and resets.
+
+### Expected Files for a Form Feature
+
+When scaffolding a form with an API call (e.g. "item form"), create these files:
+
+```
+features/<domain>/schemas/<name>-form.schema.ts     ← Zod schema, types
+features/<domain>/hooks/use-<name>-form.ts           ← Submission hook
+features/<domain>/components/<name>-form.tsx          ← Thin render component
+```
+
 ## Feature/View Pattern
 
 A feature with state and business logic separates into three layers:
@@ -70,11 +104,14 @@ The presenter returns a typed contract with four sections:
 | `instructions` | Boolean flags | `showError`, `disableButton`, `hideSection` |
 | `effects` | Callbacks the view can fire | `onSubmit`, `onRetry`, `onDismiss` |
 
-## Decision Triggers
+## Mandatory Reference Loading
 
-- **"This form is getting complicated"** → consult `references/forms.md`
-- **"This component has too much logic"** → consult `references/features-and-views.md`
-- **"Where does the conditional rendering logic go?"** → in the presenter, not the view
+When creating a new form or feature component, **always** read the full reference before writing code:
+
+- **Creating a form with an API call** → read `references/forms.md` first — it contains the complete specification, anti-patterns, and error flow
+- **Creating a component with loading/empty/error states** → read `references/features-and-views.md` first — it contains the presenter pattern, contract typing, and decision guide
+
+Do not skip reference loading when scaffolding from scratch. The references contain concrete examples and anti-patterns that prevent the most common mistakes.
 
 ### When to use each pattern
 
@@ -85,6 +122,38 @@ The presenter returns a typed contract with four sections:
 | Component that fetches data or has loading/empty/error states | Feature/view pattern (orchestrate/present/render) |
 | Component with conditional logic, computed display, permission-based UI | Feature/view pattern (orchestrate/present/render) |
 | Static component that receives props and renders | No pattern needed |
+
+### Expected Files for a Feature with State
+
+When scaffolding a component with loading/empty/error states (e.g. "team members list"), create these files:
+
+```
+features/<domain>/hooks/use-<name>.ts                ← Orchestrator hook
+features/<domain>/presenters/<name>.presenter.ts     ← Pure presenter function
+features/<domain>/components/<name>-view.tsx          ← View component
+```
+
+### Feature Anti-Pattern: The Kitchen Sink Component
+
+This is what happens when orchestrate/present/render aren't separated — **do not generate this**:
+
+```typescript
+// BAD — data fetching, conditional logic, and rendering in one component
+function SearchPage() {
+  const { data, isLoading, error } = useQuery({ ... });       // orchestration mixed with rendering
+
+  return (
+    <>
+      {isLoading ? <Skeleton /> : null}                        // violation: conditional logic in JSX
+      {error ? <Text color="error">{error.message}</Text> : null}
+      {data?.length === 0 ? <EmptyState /> : null}             // violation: business logic in view
+      {data?.map(item => <Card key={item.id} item={item} />)}
+    </>
+  );
+}
+```
+
+The correct version uses an orchestrator hook (owns data fetching), a presenter pure function (returns a `renderAs` contract), and a view component (narrows on `renderAs`, renders the contract).
 
 ## References
 
