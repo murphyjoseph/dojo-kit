@@ -10,7 +10,7 @@ dojo-kit is a **Claude Code plugin** — a web-focused drop-in toolkit providing
 
 ```
 .claude-plugin/plugin.json  — Plugin manifest
-skills/                     — Plugin skills (9 total)
+skills/                     — Plugin skills (8 total)
 commands/                   — Slash commands
 hooks/hooks.json            — Hook definitions
 scripts/                    — Hook scripts
@@ -29,8 +29,7 @@ eslint.config.js            — ESLint flat config (JS/TS/JSX/TSX)
 | `ui-patterns` | Form architecture (schema/config/hook/component) and feature/view separation |
 | `frontend-design` | Distinctive, production-grade UI — bold aesthetics, typography, color, motion, spatial composition |
 | `project-standards` | Hard rules — no global installs, kebab-case files, conventional commits, no barrel files |
-| `commit` | Good git commits — scoping, conventional messages, when to commit |
-| `pull-request` | Well-structured PRs using the project PR template |
+| `scaffolding` | Orchestrates feature scaffolding — coordinates architecture, ui-patterns, data-flow, and project-standards |
 | `planning` | Plan before building — auto-generate plan documents for multi-file work, wait for approval |
 | `claude-md-improver` | Audit and improve CLAUDE.md files — quality scoring, targeted updates, templates |
 
