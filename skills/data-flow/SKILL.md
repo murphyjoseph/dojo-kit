@@ -1,8 +1,10 @@
 ---
 name: data-flow
-description: Error handling and API pipeline patterns. Use when writing functions
-  that can fail, creating API integrations, handling server responses, designing
-  error types, or deciding between throwing and returning errors.
+description: Error handling and API pipeline patterns. Use when creating any
+  feature, page, or component that calls an API — including forms that submit
+  data, pages that fetch and display data, or any code that talks to a server.
+  Also use when writing functions that can fail, handling server responses,
+  designing error types, or deciding between throwing and returning errors.
 ---
 
 # Data Flow
@@ -58,6 +60,19 @@ Every API operation follows four stages:
 | **Consume** | Wire into framework (React Query hook, server loader) | Mock the factory |
 
 **Gateway rule:** feature code never calls `fetch()` directly. A gateway handles request execution, auth injection, base URL resolution, and logging. Auth is middleware — feature code doesn't think about tokens.
+
+### Expected Files for an API Integration
+
+When scaffolding a new API endpoint integration (e.g. "submit order"), create these files:
+
+```
+features/<domain>/api/<name>.definition.ts           ← Endpoint, method, schemas
+features/<domain>/api/<name>.unpack.ts               ← Response variants → Result
+features/<domain>/api/<name>.factory.ts              ← Gateway wrapper, try/catch → Result
+features/<domain>/hooks/use-<name>.ts                ← Framework consumer hook
+```
+
+For simple, single-use API calls, combine definition + unpack into one file. Use the full four-file pipeline when an API call is reused or its response shape has multiple variants.
 
 ## Decision Triggers
 
