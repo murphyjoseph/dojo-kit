@@ -31,7 +31,7 @@ After cloning, run `pnpm install` to set up commitlint, ESLint, and git hooks.
 
 ### Skills
 
-Eight skills activate automatically based on what you're doing:
+Nine skills activate automatically based on what you're doing:
 
 | Skill | What it teaches Claude |
 | --- | --- |
@@ -42,6 +42,7 @@ Eight skills activate automatically based on what you're doing:
 | **project-standards** | Hard rules — no global installs, kebab-case files, conventional commits, no barrel files, OWASP compliance |
 | **commit** | When to commit, how to scope changes, conventional commit message format |
 | **pull-request** | PR scoping, template population, `gh pr create` workflow |
+| **planning** | Auto-generate a plan document before multi-file work — scope, architecture impact, file breakdown, implementation order |
 | **claude-md-improver** | Audit, evaluate, and improve CLAUDE.md files — quality scoring, targeted updates, templates by project type |
 
 Each skill follows progressive disclosure: a concise `SKILL.md` stays in context, with detailed `references/` loaded only when needed.
@@ -69,7 +70,7 @@ Each skill follows progressive disclosure: a concise `SKILL.md` stays in context
 
 ```
 .claude-plugin/plugin.json   Plugin manifest
-skills/                      8 skills with reference docs
+skills/                      9 skills with reference docs
 commands/                    Slash commands
 hooks/hooks.json             Hook definitions
 scripts/                     Hook and git hook scripts

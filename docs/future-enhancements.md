@@ -109,3 +109,22 @@ A skill for creating new internal packages in a monorepo. Goes beyond scaffoldin
 - **Peer dependencies by default** — framework and shared runtime deps (React, a design system, etc.) should be `peerDependencies`, not `dependencies`. The consuming app owns the version.
 - **Internal deps stay internal** — packages within the monorepo reference each other via workspace protocol (`workspace:*`), never published versions.
 - These rules could be enforced via a PostToolUse hook or as guidance within the skill itself.
+
+## Code Smell Reviewer
+
+A command or skill that reviews code for common smells and anti-patterns:
+- **Type casting audit** — flag `as` casts and suggest `satisfies` or stronger type definitions. The goal is types that are correct by construction, not patched with assertions.
+- **General smell detection** — overly broad `any` types, unused variables, dead code paths, functions that do too much, deeply nested conditionals, magic numbers/strings
+- **Framework-specific patterns** — React: missing dependency arrays, prop drilling that should be context, inline object/function creation in render. Next.js: client components that could be server components.
+- Could run on-demand ("review this file/feature") or as a periodic sweep ("review everything changed in the last 5 commits")
+- Output is a structured report with severity, file path, line reference, and suggested fix — not just warnings but actionable guidance
+
+## MCP Server Recommendations from YAML
+
+After reviewing `dojo-kit.yaml`, detect the project's stack and suggest relevant MCP servers:
+- Database detected (Postgres, SQLite, etc.) → suggest a database MCP server for schema introspection and query assistance
+- Design system or Figma references → suggest a Figma MCP server
+- Specific cloud provider (AWS, Vercel, etc.) → suggest provider-specific MCP servers
+- API-heavy project → suggest OpenAPI or GraphQL MCP servers for schema-aware assistance
+- Present suggestions during init or as a follow-up command, with instructions for adding them to `.mcp.json`
+- Don't auto-install — flag the opportunity and let the user decide
