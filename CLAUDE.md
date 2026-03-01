@@ -51,6 +51,7 @@ ESLint is configured in `eslint.config.js` (flat config with TypeScript support)
 Hooks are defined in `hooks/hooks.json` and provided by the plugin:
 
 - **PreToolUse → Conventional Commits** (prompt hook): Validates that `git commit` messages follow Conventional Commits format before execution.
+- **PreToolUse → Colocation Enforcer** (prompt hook): Blocks file writes to type-based directories (`hooks/`, `components/`, `schemas/`, `presenters/`) inside `features/`. Redirects to concern-based colocation.
 - **PostToolUse → lint-on-edit** (command hook): Auto-lints `.js/.ts/.jsx/.tsx` files after Write/Edit. Lint failures inform Claude via `systemMessage` but never block.
 - **Notification → notify-sound** (command hook): Plays macOS `Tink.aiff` on notifications.
 
