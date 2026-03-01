@@ -2,6 +2,8 @@
 
 A web-focused drop-in plugin for Claude Code — architecture skills, project standards, and workflow automation.
 
+> **Heads up:** dojo-kit is intentionally opinionated and still in its first iteration — expect active, breaking changes. The strong opinions are by design — AI tools scaffold significantly better when they have clear, specific guidance to follow. Too much ambiguity leads to inconsistent, lower-quality output. The `dojo-kit.yaml` config is the foundation for making these opinions customizable — the goal is to surface them there so you can tune or override what doesn't fit your workflow. That customization layer is still being built out. In the meantime, you can always override conventions in your project's `CLAUDE.md`.
+
 ## What is dojo-kit?
 
 dojo-kit is a [Claude Code plugin](https://docs.anthropic.com/en/docs/claude-code). It teaches Claude how to structure web projects by providing opinionated skills for architecture, data flow, UI patterns, and project standards. No code generation — just well-written guidance that Claude reads and follows in context.
