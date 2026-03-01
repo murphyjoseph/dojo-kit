@@ -67,7 +67,6 @@ The plan template maps directly to other dojo-kit skills. Use them when writing 
 | File Breakdown | `architecture`, `project-standards` | File naming, directory structure, flat vs nested |
 | Data Flow | `data-flow` | Result types, API pipeline stages, error handling |
 | UI Plan | `ui-patterns` | Form architecture, feature/view separation |
-| Implementation Order | `commit` | Scoping each step as a committable unit |
 
 ## Plan Quality Rules
 
