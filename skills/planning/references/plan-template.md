@@ -142,4 +142,4 @@ Tag every question with who can answer it. This turns unknowns into action items
 
 ### Implementation Order
 
-Each step should be independently committable and testable. Earlier steps should not depend on later ones. The order should minimize the time spent with broken or partial functionality. Reference the `commit` skill for scoping each step as a clean commit.
+Each step should be independently committable and testable. Earlier steps should not depend on later ones. The order should minimize the time spent with broken or partial functionality.

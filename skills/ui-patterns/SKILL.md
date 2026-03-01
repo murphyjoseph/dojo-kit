@@ -104,25 +104,6 @@ The presenter returns a typed contract with four sections:
 | `instructions` | Boolean flags | `showError`, `disableButton`, `hideSection` |
 | `effects` | Callbacks the view can fire | `onSubmit`, `onRetry`, `onDismiss` |
 
-## Mandatory Reference Loading
-
-When creating a new form or feature component, **always** read the full reference before writing code:
-
-- **Creating a form with an API call** → read `references/forms.md` first — it contains the complete specification, anti-patterns, and error flow
-- **Creating a component with loading/empty/error states** → read `references/features-and-views.md` first — it contains the presenter pattern, contract typing, and decision guide
-
-Do not skip reference loading when scaffolding from scratch. The references contain concrete examples and anti-patterns that prevent the most common mistakes.
-
-### When to use each pattern
-
-| Signal | Pattern |
-|---|---|
-| Form with 2+ fields or an API call | Form pattern — always (schema + submission hook + component in separate files) |
-| Form with 1 field, no API call | Inline — the separation is overhead |
-| Component that fetches data or has loading/empty/error states | Feature/view pattern (orchestrate/present/render) |
-| Component with conditional logic, computed display, permission-based UI | Feature/view pattern (orchestrate/present/render) |
-| Static component that receives props and renders | No pattern needed |
-
 ### Expected Files for a Feature with State
 
 When scaffolding a component with loading/empty/error states (e.g. "team members list"), create these files:
@@ -154,6 +135,25 @@ function SearchPage() {
 ```
 
 The correct version uses an orchestrator hook (owns data fetching), a presenter pure function (returns a `renderAs` contract), and a view component (narrows on `renderAs`, renders the contract).
+
+## Mandatory Reference Loading
+
+When creating a new form or feature component, **always** read the full reference before writing code:
+
+- **Creating a form with an API call** → read `references/forms.md` first — it contains the complete specification, anti-patterns, and error flow
+- **Creating a component with loading/empty/error states** → read `references/features-and-views.md` first — it contains the presenter pattern, contract typing, and decision guide
+
+Do not skip reference loading when scaffolding from scratch. The references contain concrete examples and anti-patterns that prevent the most common mistakes.
+
+### When to use each pattern
+
+| Signal | Pattern |
+|---|---|
+| Form with 2+ fields or an API call | Form pattern — always (schema + submission hook + component in separate files) |
+| Form with 1 field, no API call | Inline — the separation is overhead |
+| Component that fetches data or has loading/empty/error states | Feature/view pattern (orchestrate/present/render) |
+| Component with conditional logic, computed display, permission-based UI | Feature/view pattern (orchestrate/present/render) |
+| Static component that receives props and renders | No pattern needed |
 
 ## References
 

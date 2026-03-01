@@ -43,7 +43,7 @@ If `dojo-kit.yaml` exists at the project root, read it. Use `project.packageMana
 | Rule | Enforced by |
 |---|---|
 | Conventional Commits format | `commitlint` git hook — malformed messages are rejected |
-| Format: `type(scope): description` | See `commit` skill for full guide |
+| Format: `type(scope): description` | `commitlint` git hook — see [Conventional Commits](https://www.conventionalcommits.org/) |
 | Never skip hooks | Don't use `--no-verify` |
 
 ## Security
