@@ -31,13 +31,14 @@ After cloning, run `pnpm install` to set up commitlint, ESLint, and git hooks.
 
 ### Skills
 
-Six skills activate automatically based on what you're doing:
+Seven skills activate automatically based on what you're doing:
 
 | Skill | What it teaches Claude |
 | --- | --- |
 | **architecture** | Boundary-first layer system (`app/ → features/ → shared/ → platform/`), import hierarchy, promotion criteria, cross-cutting service patterns |
 | **data-flow** | `Result<T, E>` error handling, throw vs return boundaries, typed API pipeline (define → unpack → factory → consume) |
 | **ui-patterns** | Form architecture (schema / config / hook / component), feature/view separation (orchestrate / present / render) |
+| **frontend-design** | Distinctive, production-grade UI design — bold aesthetic direction, typography, color, motion, spatial composition. Avoids generic AI aesthetics |
 | **project-standards** | Hard rules — no global installs, kebab-case files, conventional commits, no barrel files, OWASP compliance |
 | **commit** | When to commit, how to scope changes, conventional commit message format |
 | **pull-request** | PR scoping, template population, `gh pr create` workflow |
@@ -74,6 +75,10 @@ scripts/                     Hook and git hook scripts
 docs/references/             Shared reference documents
 docs/decisions/              Architecture decision records
 ```
+
+## Acknowledgments
+
+The `frontend-design` skill is adapted from [Anthropic's Claude Code](https://claude.ai/code) default skills, licensed under Apache 2.0.
 
 ## License
 
