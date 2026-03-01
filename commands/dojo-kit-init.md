@@ -93,10 +93,54 @@ Check if a `CLAUDE.md` exists at the project root.
 
 **Why this matters:** Plugin skills only load on demand. The architecture rules must be in CLAUDE.md (always loaded) to ensure Claude follows the file organization patterns even when skills don't trigger.
 
-### 8. Recommend additional plugins
+### 8. Offer companion plugins and tools
 
-After generating the file, suggest relevant Anthropic plugins based on what was detected:
+dojo-kit does not bundle third-party plugins or skills — it recommends and installs them on your behalf. After generating `dojo-kit.yaml` and `CLAUDE.md`, present the companion catalog using `AskUserQuestion` (multi-select).
 
-- If Next.js detected → suggest `nextjs` plugin if available
-- If TypeScript detected → mention that dojo-kit already provides TypeScript LSP
-- If monorepo detected → suggest reviewing workspace-specific CLAUDE.md files
+**Always ask about these companions:**
+
+| Companion | Type | What it provides |
+|---|---|---|
+| `superpowers` (Anthropic) | Plugin | Brainstorming, TDD, plan execution, code review workflows |
+| `frontend-design` (Anthropic) | Plugin | Production-grade UI design — typography, color, motion, spatial composition |
+| `context7` (Upstash) | MCP server | Up-to-date library documentation via Context7 |
+| `typescript-lsp` | LSP server | TypeScript/JavaScript language server for diagnostics |
+
+**Conditional companions (suggest when detected):**
+
+| Companion | Condition |
+|---|---|
+| `nextjs` (Anthropic) | Next.js detected in dependencies |
+
+**Question format:**
+
+Use `AskUserQuestion` with `multiSelect: true`:
+
+> "dojo-kit works well with these companion tools (all free, all optional). Which would you like to install?"
+
+List each companion with a short description. Pre-select companions that match the detected stack (e.g., `typescript-lsp` when TypeScript is detected, `context7` always recommended).
+
+**Installation:**
+
+For each selected companion:
+
+- **Plugins** (`superpowers`, `frontend-design`, `nextjs`) → Output the install command for the user to run: `claude plugin install <name>@claude-plugins-official --scope project`
+- **MCP servers** (`context7`) → Write the config to the project's `.mcp.json` file (create if absent, merge if exists)
+- **LSP servers** (`typescript-lsp`) → Write the config to the project's `.lsp.json` file (create if absent, merge if exists)
+
+**Record in dojo-kit.yaml:**
+
+Add a `companions:` section to the generated `dojo-kit.yaml` recording what was installed:
+
+```yaml
+companions:
+  plugins:
+    - superpowers
+    - frontend-design
+  mcp:
+    - context7
+  lsp:
+    - typescript-lsp
+```
+
+On re-run, skip companions that are already recorded in `dojo-kit.yaml` — only ask about new ones.

@@ -4,19 +4,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-dojo-kit is a **Claude Code plugin** — a web-focused drop-in toolkit providing architecture skills, project standards, and workflow automation. The repo root IS the plugin. Install it with `claude --plugin-dir <path-to-dojo-kit>` or add it to your project's plugin configuration.
+dojo-kit is a **Claude Code plugin** — a web-focused drop-in toolkit providing architecture skills, project standards, and workflow automation. The repo root IS the plugin. Install with `claude plugin install dojo-kit@codedojoe --scope project` or use `claude --plugin-dir <path-to-dojo-kit>` for local development.
 
 ## Repository Structure
 
 ```
 .claude-plugin/plugin.json  — Plugin manifest
-skills/                     — Plugin skills (8 total)
+skills/                     — Plugin skills (7 total)
 commands/                   — Slash commands
 hooks/hooks.json            — Hook definitions
 scripts/                    — Hook scripts
 docs/references/            — Shared reference documents
-.mcp.json                   — MCP server config (context7)
-.lsp.json                   — LSP config (TypeScript)
 eslint.config.js            — ESLint flat config (JS/TS/JSX/TSX)
 ```
 
@@ -24,12 +22,11 @@ eslint.config.js            — ESLint flat config (JS/TS/JSX/TSX)
 
 | Skill | Purpose |
 |---|---|
-| `architecture` | Boundary-first architecture and service patterns — import hierarchy, layer rules, promotion criteria |
-| `data-flow` | Error handling (Result types) and API pipeline (define/unpack/factory/consume) |
-| `ui-patterns` | Form architecture (schema/config/hook/component) and feature/view separation |
-| `frontend-design` | Distinctive, production-grade UI — bold aesthetics, typography, color, motion, spatial composition |
-| `project-standards` | Hard rules — no global installs, kebab-case files, conventional commits, no barrel files |
 | `scaffolding` | Orchestrates feature scaffolding — coordinates architecture, ui-patterns, data-flow, and project-standards |
+| `architecture` | Boundary-first architecture and service patterns — import hierarchy, layer rules, promotion criteria |
+| `data-flow` | Error handling (Result types) and API pipeline (gateway + queries + mutations for REST, full pipeline for GraphQL) |
+| `ui-patterns` | Form architecture (`.schema.ts` / `.controller.ts` / `.view.tsx`) and feature/view separation (controller / presenter / view) |
+| `project-standards` | Hard rules — no global installs, kebab-case files, conventional commits, no barrel files |
 | `planning` | Plan before building — auto-generate plan documents for multi-file work, wait for approval |
 | `claude-md-improver` | Audit and improve CLAUDE.md files — quality scoring, targeted updates, templates |
 

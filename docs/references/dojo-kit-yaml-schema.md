@@ -54,6 +54,16 @@ servers:
   api:
     type: rest | graphql | trpc | none
     runtime: node | edge | none
+
+# Companion plugins and tools installed by dojo-kit-init
+companions:
+  plugins:                           # Claude Code plugins
+    - superpowers
+    - frontend-design
+  mcp:                               # MCP servers
+    - context7
+  lsp:                               # LSP servers
+    - typescript-lsp
 ```
 
 ## Field Descriptions
@@ -101,3 +111,15 @@ Documentation tooling. Omit entirely if none detected.
 ### `servers`
 
 Backend API configuration. Omit entirely if the project is frontend-only.
+
+### `companions`
+
+Third-party plugins, MCP servers, and LSP servers installed by `dojo-kit-init`. Tracks what was installed so re-running init doesn't re-ask.
+
+| Key | Type | Description |
+|---|---|---|
+| `plugins` | list | Claude Code plugins installed via `claude plugin install` |
+| `mcp` | list | MCP servers configured in `.mcp.json` |
+| `lsp` | list | LSP servers configured in `.lsp.json` |
+
+Omit entirely if no companions were selected.
