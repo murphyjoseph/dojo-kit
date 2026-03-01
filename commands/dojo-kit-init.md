@@ -124,9 +124,11 @@ List each companion with a short description. Pre-select companions that match t
 
 For each selected companion:
 
-- **Plugins** (`superpowers`, `frontend-design`, `nextjs`) → Output the install command for the user to run: `claude plugin install <name>@claude-plugins-official --scope project`
+- **Plugins** (`superpowers`, `frontend-design`, `nextjs`) → Add to the project's `.claude/settings.json` under `enabledPlugins` (e.g., `"superpowers@claude-plugins-official": true`). If `extraKnownMarketplaces` doesn't already include `claude-plugins-official`, add it with `"source": "github", "repo": "anthropics/claude-code"`. Create `.claude/settings.json` if it doesn't exist; merge if it does.
 - **MCP servers** (`context7`) → Write the config to the project's `.mcp.json` file (create if absent, merge if exists)
 - **LSP servers** (`typescript-lsp`) → Write the config to the project's `.lsp.json` file (create if absent, merge if exists)
+
+Tell the user to restart their Claude Code session for plugin changes to take effect.
 
 **Record in dojo-kit.yaml:**
 

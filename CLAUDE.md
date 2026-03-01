@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-dojo-kit is a **Claude Code plugin** — a web-focused drop-in toolkit providing architecture skills, project standards, and workflow automation. The repo root IS the plugin. Install with `claude plugin install dojo-kit@codedojoe --scope project` or use `claude --plugin-dir <path-to-dojo-kit>` for local development.
+dojo-kit is a **Claude Code plugin** — a web-focused drop-in toolkit providing architecture skills, project standards, and workflow automation. The repo root IS the plugin. For project-scoped installation, add `codedojoe` marketplace and `dojo-kit@codedojoe` to `.claude/settings.json`. For local development, use `claude --plugin-dir <path-to-dojo-kit>`.
 
 ## Repository Structure
 

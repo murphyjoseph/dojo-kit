@@ -8,34 +8,33 @@ dojo-kit is a [Claude Code plugin](https://docs.anthropic.com/en/docs/claude-cod
 
 > **Note:** dojo-kit is currently optimized for **frontend** web development in the JavaScript/TypeScript/Node ecosystem. The architecture, data-flow, and UI skills target React-based SPAs and SSR frameworks (Next.js, Remix, Vite). Workflow skills (project standards, planning) are language-agnostic. **Backend-specific patterns** (API design, database layers, queue workers) are on the roadmap but not yet included.
 
-## Install
+## Getting started
 
-### Project-scoped (recommended)
+### 1. Add dojo-kit to your project
 
-```bash
-claude plugin install dojo-kit@codedojoe --scope project
+Add a `.claude/settings.json` to your project root:
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "codedojoe": {
+      "source": {
+        "source": "github",
+        "repo": "codedojoe/claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "dojo-kit@codedojoe": true
+  }
+}
 ```
 
-This adds dojo-kit to your project's `.claude/settings.json` so every developer gets it automatically.
+Commit this file. Claude Code will download and install dojo-kit automatically — no cloning required. Teammates who clone your project get the same setup when they trust the project settings.
 
-### Local development
+### 2. Run init
 
-If you're developing dojo-kit itself or want to try it before committing:
-
-```bash
-claude --plugin-dir /path/to/dojo-kit
-```
-
-### Requirements
-
-- Node >= 24
-- pnpm >= 10
-
-After cloning the dojo-kit repo, run `pnpm install` to set up commitlint, ESLint, and git hooks.
-
-## Setup
-
-After installing, run the init command inside your project:
+Start a Claude Code session in your project and run:
 
 ```
 /dojo-kit-init
@@ -59,6 +58,23 @@ During init, you'll be asked which companion tools to install. These are **not p
 | `typescript-lsp` | — | TypeScript/JavaScript language server for diagnostics |
 
 All optional. Your choices are recorded in `dojo-kit.yaml` so re-running init won't re-ask.
+
+## Contributing
+
+To develop or customize dojo-kit itself:
+
+```bash
+git clone https://github.com/murphyjoseph/dojo-kit.git
+cd dojo-kit
+pnpm install   # sets up commitlint, ESLint, git hooks
+```
+
+Test your changes locally by pointing Claude Code at your clone:
+
+```bash
+cd /path/to/your-project
+claude --plugin-dir /path/to/dojo-kit
+```
 
 ## What's included
 
@@ -131,7 +147,7 @@ features/items/
 - **ESLint** — Flat config with TypeScript support
 - **commitlint** — Conventional Commits enforcement via git hook
 
-## Three layers of enforcement
+## How enforcement works
 
 dojo-kit uses three layers to ensure Claude follows the architecture patterns:
 
