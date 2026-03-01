@@ -32,17 +32,22 @@ Before writing any code for a new feature, page, or component:
 
 ## Output: What a Scaffolded Feature Looks Like
 
+### Colocation Principle
+
+**Organize by concern, not by file type.** Never create type-based directories like `hooks/`, `schemas/`, `presenters/`, `components/` that scatter related files. Instead, colocate files that work together. Shared types and API files live at the feature root or in `api/`. Each concern (form, dashboard, search) gets its own sub-directory when the feature has multiple concerns.
+
 ### Form feature (e.g. "create item")
 
 ```
 features/items/
-  schemas/item-form.schema.ts        ← Zod schema, single validation truth
-  hooks/use-item-form.ts             ← Submission hook: mutations, error mapping, isPending
-  components/item-form.tsx           ← Thin render layer: form library setup + fields
-  api/create-item.definition.ts      ← Endpoint, method, request/response schemas
-  api/create-item.unpack.ts          ← Response variants → Result
-  api/create-item.factory.ts         ← Gateway wrapper, try/catch → Result
-  hooks/use-create-item.ts           ← React Query consumer hook
+  types.ts                           ← Shared type definitions
+  api/
+    items.api.ts                     ← Gateway functions
+    items.unpack.ts                  ← Response → Result normalization
+  create-item/
+    item-form.schema.ts              ← Zod schema, single validation truth
+    use-item-form.ts                 ← Submission hook: mutations, error mapping, isPending
+    item-form.tsx                    ← Thin render layer: form library setup + fields
 ```
 
 The route file composes the feature and handles consequences:
@@ -59,13 +64,14 @@ The route file composes the feature and handles consequences:
 
 ```
 features/items/
-  hooks/use-item-search.ts           ← Orchestrator: fetches data, manages state
-  presenters/item-search.presenter.ts ← Pure function: data → view contract with renderAs
-  components/item-search-view.tsx    ← Renders the contract, no logic
-  api/search-items.definition.ts     ← Endpoint, method, schemas
-  api/search-items.unpack.ts         ← Response → Result
-  api/search-items.factory.ts        ← Gateway wrapper
-  hooks/use-search-items.ts          ← React Query consumer hook
+  types.ts                           ← Shared type definitions
+  api/
+    items.api.ts                     ← Gateway functions
+    items.unpack.ts                  ← Response → Result normalization
+  search/
+    search.presenter.ts              ← Pure function: data → view contract with renderAs
+    search-view.tsx                  ← Renders the contract, no logic
+    use-search-items.ts              ← Orchestrator: fetches data, manages state
 ```
 
 ## What NOT to Generate
@@ -81,6 +87,7 @@ These are violations — if you see these patterns in your output, stop and fix 
 | Inline `fetch()` or direct API client call in feature | Use the API pipeline (define/unpack/factory/consume) |
 | Loading/empty/error handled with inline ternaries in one component | Use presenter + view contract with `renderAs` |
 | All logic in one file | Split by concern: schema, hook, component (forms) or orchestrator, presenter, view (features) |
+| Type-based directories (`hooks/`, `schemas/`, `components/`, `presenters/`) | Colocate by concern — related files live together in the same directory |
 
 ## When to Simplify
 

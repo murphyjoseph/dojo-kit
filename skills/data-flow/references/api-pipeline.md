@@ -106,7 +106,7 @@ export function createSubmitOrder(gateway: Gateway) {
 Wire the factory into the framework. The consumer doesn't know or care about transport.
 
 ```typescript
-// features/checkout/hooks/useSubmitOrder.ts
+// features/checkout/submit-order/use-submit-order.ts
 export function useSubmitOrder() {
   const gateway = useGateway();
   const submitOrder = createSubmitOrder(gateway);

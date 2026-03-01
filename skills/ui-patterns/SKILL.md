@@ -75,13 +75,16 @@ The correct version has three files (schema + submission hook + component) as sp
 
 ### Expected Files for a Form Feature
 
-When scaffolding a form with an API call (e.g. "item form"), create these files:
+When scaffolding a form with an API call (e.g. "item form"), colocate all form files together:
 
 ```
-features/<domain>/schemas/<name>-form.schema.ts     ← Zod schema, types
-features/<domain>/hooks/use-<name>-form.ts           ← Submission hook
-features/<domain>/components/<name>-form.tsx          ← Thin render component
+features/<domain>/<concern>/
+  <name>-form.schema.ts              ← Zod schema, types
+  use-<name>-form.ts                 ← Submission hook
+  <name>-form.tsx                    ← Thin render component
 ```
+
+Never scatter these across `schemas/`, `hooks/`, `components/` directories. They belong together.
 
 ## Feature/View Pattern
 
@@ -106,13 +109,16 @@ The presenter returns a typed contract with four sections:
 
 ### Expected Files for a Feature with State
 
-When scaffolding a component with loading/empty/error states (e.g. "team members list"), create these files:
+When scaffolding a component with loading/empty/error states (e.g. "team members list"), colocate presenter and view together:
 
 ```
-features/<domain>/hooks/use-<name>.ts                ← Orchestrator hook
-features/<domain>/presenters/<name>.presenter.ts     ← Pure presenter function
-features/<domain>/components/<name>-view.tsx          ← View component
+features/<domain>/<concern>/
+  <name>.presenter.ts                ← Pure presenter function
+  <name>-view.tsx                    ← View component
+  use-<name>.ts                      ← Orchestrator hook
 ```
+
+Never put presenters in a separate `presenters/` directory — they belong next to the view they serve.
 
 ### Feature Anti-Pattern: The Kitchen Sink Component
 

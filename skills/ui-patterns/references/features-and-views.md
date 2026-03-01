@@ -18,7 +18,7 @@ How to separate "deciding what to show" from "showing it" so that business logic
 Fetches data, manages state, owns side effects. Uses framework primitives (hooks, routers, context). Thin — calls the other two layers and wires them together.
 
 ```typescript
-// features/team/hooks/useTeamMembers.ts
+// features/team/members/use-team-members.ts
 export function useTeamMembers(teamId: string) {
   const { data, isLoading, error } = useQuery(['team', teamId], () =>
     getTeamMembers(teamId)
@@ -41,7 +41,7 @@ export function useTeamMembers(teamId: string) {
 A pure function that takes raw data and returns a typed view contract. No hooks, no side effects, no framework imports.
 
 ```typescript
-// features/team/presenters/team-members.presenter.ts
+// features/team/members/team-members.presenter.ts
 export function presentTeamMembers(input: {
   data: TeamMember[] | null;
   isLoading: boolean;
@@ -109,7 +109,7 @@ expect(contract.renderAs).toBe('loading');
 Receives the contract and draws it. No data fetching, no business logic. Narrows on `renderAs`.
 
 ```typescript
-// features/team/components/TeamMembersView.tsx
+// features/team/members/team-members-view.tsx
 export function TeamMembersView(props: TeamMembersContract) {
   if (props.renderAs === 'loading') {
     return <Skeleton />;

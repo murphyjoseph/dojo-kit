@@ -63,16 +63,17 @@ Every API operation follows four stages:
 
 ### Expected Files for an API Integration
 
-When scaffolding a new API endpoint integration (e.g. "submit order"), create these files:
+API files live in the feature's `api/` directory since they're shared across concerns. Consumer hooks colocate with the concern that uses them.
 
 ```
-features/<domain>/api/<name>.definition.ts           ← Endpoint, method, schemas
-features/<domain>/api/<name>.unpack.ts               ← Response variants → Result
-features/<domain>/api/<name>.factory.ts              ← Gateway wrapper, try/catch → Result
-features/<domain>/hooks/use-<name>.ts                ← Framework consumer hook
+features/<domain>/api/
+  <domain>.api.ts                    ← Gateway functions (all endpoints for this domain)
+  <domain>.unpack.ts                 ← Response variants → Result normalization
+features/<domain>/<concern>/
+  use-<name>.ts                      ← Framework consumer hook (colocated with its concern)
 ```
 
-For simple, single-use API calls, combine definition + unpack into one file. Use the full four-file pipeline when an API call is reused or its response shape has multiple variants.
+For simple, single-use API calls, combine gateway + unpack into one file. Use separate files when an API call is reused or its response shape has multiple variants.
 
 ## Decision Triggers
 

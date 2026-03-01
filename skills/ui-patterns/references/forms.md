@@ -18,7 +18,7 @@ How to structure forms so that validation, submission, and rendering are separat
 One schema defines every field, every constraint, every error message. The schema is independently importable — it can be tested without rendering and reused across contexts.
 
 ```typescript
-// features/items/schemas/item-form.schema.ts
+// features/items/create-item/item-form.schema.ts
 import { z } from 'zod';
 
 export const itemFormSchema = z.object({
@@ -38,7 +38,7 @@ export type ItemFormValues = z.infer<typeof itemFormSchema>;
 This is the critical separation. The submission hook owns every API call, mutation, payload transformation, and error mapping. It returns a submit handler and state — nothing about rendering.
 
 ```typescript
-// features/items/hooks/use-item-form.ts
+// features/items/create-item/use-item-form.ts
 
 interface UseItemFormOptions {
   item?: Item | null;
@@ -97,7 +97,7 @@ export function useItemForm({ item, onSuccess }: UseItemFormOptions) {
 The component sets up the form library, composes fields, and wires the submission hook. It does not import mutations, construct payloads, or decide what happens after success.
 
 ```typescript
-// features/items/components/item-form.tsx
+// features/items/create-item/item-form.tsx
 
 interface ItemFormProps {
   item?: Item | null;
