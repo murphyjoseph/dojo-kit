@@ -1,6 +1,6 @@
 {
   "name": "dojo-kit",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Web-focused drop-in toolkit for Claude Code — architecture skills, project standards, and workflow automation.",
   "keywords": ["architecture", "frontend", "standards", "workflow", "skills"],
   "author": {
