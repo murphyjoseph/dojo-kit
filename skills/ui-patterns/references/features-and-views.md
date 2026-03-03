@@ -6,9 +6,10 @@ How to separate "deciding what to show" from "showing it" so that business logic
 
 | Rule | Description |
 |---|---|
-| Three layers | Controller → Presenter → View |
+| Four layers | Controller → Presenter → Feature → View |
 | Presenter is a pure function | Input data → output contract, no hooks or side effects |
-| View renders the contract | No business logic, no data fetching, narrows on `renderAs` |
+| Feature is the wiring layer | Calls controller, passes props to view, owns `"use client"` |
+| View renders from props | No hooks, no `"use client"`, no data fetching, narrows on `renderAs` |
 | View contract has four sections | `renderAs`, `display`, `instructions`, `effects` |
 
 ## The Three Layers
@@ -104,9 +105,28 @@ const contract = presentTeamMembers({
 expect(contract.renderAs).toBe('loading');
 ```
 
+### Feature
+
+The `"use client"` boundary. Calls the controller hook, destructures the contract, and passes props to the view. Contains no logic — just wiring. Lives in a `.feature.tsx` file.
+
+```typescript
+// features/team/members/team-members.feature.tsx
+"use client"
+
+import { useTeamMembers } from "./team-members.controller"
+import { TeamMembersView } from "./team-members.view"
+
+export function TeamMembersFeature({ teamId }: { teamId: string }) {
+  const contract = useTeamMembers(teamId)
+  return <TeamMembersView {...contract} />
+}
+```
+
+**Routes import the feature, not the view.** The feature component is the public entry point.
+
 ### View
 
-Receives the contract and draws it. No data fetching, no business logic. Narrows on `renderAs`. Lives in a `.view.tsx` file.
+Receives the contract as props and draws it. No hooks, no `"use client"`, no data fetching, no business logic. Narrows on `renderAs`. Lives in a `.view.tsx` file.
 
 ```typescript
 // features/team/members/team-members.view.tsx
