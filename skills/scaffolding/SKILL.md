@@ -25,8 +25,9 @@ Before writing any code for a new feature, page, or component:
 3. **API integration** (`data-flow` skill) — if the feature calls any API, create gateway functions (`.api.ts`), query hooks (`.queries.ts`), and mutation hooks (`.mutations.ts`) in the feature's `api/` directory. Read `data-flow/references/errors.md` for Result type, ErrorBase, and ValidationError definitions. Set up these types in the feature. Never call `fetch()` from feature code.
 
 4. **Component structure** (`ui-patterns` skill):
-   - **Forms with API calls** → always create three files: `.schema.ts`, `.controller.ts`, `.view.tsx`. Consult `ui-patterns/references/forms.md` for the full specification.
-   - **Data display with loading/empty/error states** → always create three layers: `.controller.ts`, `.presenter.ts`, `.view.tsx`. Consult `ui-patterns/references/features-and-views.md` for the full specification.
+   - **Forms with API calls** → always create four files: `.schema.ts`, `.controller.ts`, `.feature.tsx`, `.view.tsx`. Consult `ui-patterns/references/forms.md` for the full specification.
+   - **Data display with loading/empty/error states** → always create four files: `.controller.ts`, `.presenter.ts`, `.feature.tsx`, `.view.tsx`. Consult `ui-patterns/references/features-and-views.md` for the full specification.
+   - **The `.feature.tsx` is the wiring layer** — it owns `"use client"`, calls the controller hook, and passes props to the view. Routes import the feature, never the view directly.
 
 5. **Feature portability** (`architecture` skill) — verify features don't import from routes or sibling features. Toasts, navigation, and analytics happen via `onSuccess`/`onAction` callbacks, never inside the feature.
 
@@ -55,6 +56,7 @@ Use functional suffixes so file purpose is clear from the name:
 | `.controller.ts` | Logic hook — submission (forms) or orchestration (features) | `item-form.controller.ts` |
 | `.presenter.ts` | Pure function: raw data → view contract | `dashboard.presenter.ts` |
 | `.view.tsx` | Thin render component | `item-form.view.tsx` |
+| `.feature.tsx` | Wiring component: calls controller, passes props to view | `item-form.feature.tsx` |
 | `.test.ts` | Colocated test file | `item-form.controller.test.ts` |
 | `.styles.ts` / `.module.css` | Colocated style file | `item-form.styles.ts` |
 
@@ -69,17 +71,18 @@ features/items/
     items.mutations.ts               ← useCreateItem, useUpdateItem, useDeleteItem
   create-item/
     item-form.schema.ts              ← Zod schema, single validation truth
-    item-form.controller.ts          ← Submission logic: wraps mutations, error mapping, isPending
+    item-form.controller.ts          ← "use client", submission logic: wraps mutations, error mapping
     item-form.controller.test.ts     ← Tests for submission logic
-    item-form.view.tsx               ← Thin render layer: form library setup + fields
+    item-form.feature.tsx            ← "use client", wires controller → view via props
+    item-form.view.tsx               ← Pure render layer: receives props (no hooks, no "use client")
     item-form.styles.ts              ← Colocated styles (if applicable)
 ```
 
-The route file composes the feature and handles consequences:
+The route file imports the feature (not the view) and handles consequences:
 
 ```typescript
 // routes/create-item/index.tsx
-<ItemForm onSuccess={(item) => {
+<ItemFormFeature onSuccess={(item) => {
   toaster.create({ title: 'Item created', type: 'success' });
   navigate({ to: '/items/$id', params: { id: item.id } });
 }} />
@@ -96,9 +99,10 @@ features/items/
   search/
     search.presenter.ts              ← Pure function: data → view contract with renderAs
     search.presenter.test.ts         ← Tests for presenter logic
-    search.controller.ts             ← Controller: fetches data, wires presenter
+    search.controller.ts             ← "use client", controller: fetches data, wires presenter
     search.controller.test.ts        ← Tests for controller logic
-    search.view.tsx                  ← Renders the contract, no logic
+    search.feature.tsx               ← "use client", wires controller → view via props
+    search.view.tsx                  ← Pure render: receives props (no hooks, no "use client")
     search.styles.ts                 ← Colocated styles (if applicable)
 ```
 
@@ -119,6 +123,9 @@ These are violations — if you see these patterns in your output, stop and fix 
 | Query/mutation hooks in a `hooks/` folder | Colocate in `api/` next to the gateway file they wrap |
 | Tests in a separate `__tests__/` directory or top-level `tests/` folder | Colocate `.test.ts` files next to the source they test |
 | A `styles/` directory inside a feature | Colocate style files next to their view (e.g., `item-form.styles.ts` next to `item-form.view.tsx`) |
+| Hooks (`useController()`, `useState`) in a `.view.tsx` | Move hook calls to `.feature.tsx`, pass data as props to the view |
+| `"use client"` on a `.view.tsx` file | `"use client"` belongs on `.feature.tsx` and `.controller.ts` only |
+| Route imports `.view.tsx` directly | Routes import `.feature.tsx` — the feature is the public entry point |
 
 ## When to Simplify
 
