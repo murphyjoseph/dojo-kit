@@ -12,7 +12,7 @@ How to separate "deciding what to show" from "showing it" so that business logic
 | View renders from props | No hooks, no `"use client"`, no data fetching, narrows on `renderAs` |
 | View contract has four sections | `renderAs`, `display`, `instructions`, `effects` |
 
-## The Three Layers
+## The Four Layers
 
 ### Controller
 
