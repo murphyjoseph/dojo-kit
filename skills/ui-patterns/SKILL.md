@@ -28,7 +28,8 @@ A form separates into three concerns — the controller is the non-negotiable se
 |---|---|---|---|
 | **Schema** | `item-form.schema.ts` | Every field, constraint, error message | Submission, rendering, side effects |
 | **Controller** | `item-form.controller.ts` | API calls, mutations, error mapping, payload construction, pending state | Rendering, navigation, what happens after success |
-| **View** | `item-form.view.tsx` | Form library setup, field composition, layout, wiring the controller | Validation logic, API calls, deciding post-success behavior |
+| **Feature** | `item-form.feature.tsx` | Wiring controller → view via props, `"use client"` boundary | Logic, rendering, validation |
+| **View** | `item-form.view.tsx` | Form library setup, field composition, layout from props | Hooks, `"use client"`, API calls, deciding post-success behavior |
 
 Extract form configuration (defaults, resolver setup) into its own file when defaults are computed from server data or user preferences. For static defaults, inline in the component.
 
@@ -80,11 +81,14 @@ When scaffolding a form with an API call (e.g. "item form"), colocate all form f
 ```
 features/<domain>/<concern>/
   <name>-form.schema.ts              ← Zod schema, types
-  <name>-form.controller.ts          ← Submission logic: wraps mutations, error mapping
-  <name>-form.view.tsx               ← Thin render component
+  <name>-form.controller.ts          ← "use client", submission logic: wraps mutations, error mapping
+  <name>-form.feature.tsx            ← "use client", wires controller → view via props
+  <name>-form.view.tsx               ← Pure render component, receives props (no hooks, no "use client")
 ```
 
 Never scatter these across `schemas/`, `hooks/`, `components/` directories. They belong together.
+
+**Routes import the feature, not the view.** The feature component is the public entry point.
 
 ## Feature/View Pattern
 
@@ -94,7 +98,8 @@ A feature with state and business logic separates into three layers:
 |---|---|---|---|
 | **Controller** | `.controller.ts` | Fetch data, manage state, own side effects | Yes (hooks, context) |
 | **Presenter** | `.presenter.ts` | Pure function: raw data → view contract | No |
-| **View** | `.view.tsx` | Draw the contract, fire callbacks | Yes (JSX) |
+| **Feature** | `.feature.tsx` | Wire controller → view via props, `"use client"` boundary | Yes (calls controller hook) |
+| **View** | `.view.tsx` | Draw the contract from props, fire callbacks | Yes (JSX only, no hooks) |
 
 ### View Contract Shape
 
@@ -109,16 +114,19 @@ The presenter returns a typed contract with four sections:
 
 ### Expected Files for a Feature with State
 
-When scaffolding a component with loading/empty/error states (e.g. "team members list"), colocate presenter and view together:
+When scaffolding a component with loading/empty/error states (e.g. "team members list"), colocate all files together:
 
 ```
 features/<domain>/<concern>/
   <name>.presenter.ts                ← Pure presenter function
-  <name>.view.tsx                    ← View component
-  <name>.controller.ts              ← Orchestrator: fetches data, wires presenter
+  <name>.controller.ts              ← "use client", orchestrator: fetches data, wires presenter
+  <name>.feature.tsx                 ← "use client", wires controller → view via props
+  <name>.view.tsx                    ← Pure view component, receives props (no hooks, no "use client")
 ```
 
 Never put presenters in a separate `presenters/` directory — they belong next to the view they serve.
+
+**Routes import the feature, not the view.** The feature component is the public entry point.
 
 ### Feature Anti-Pattern: The Kitchen Sink Component
 
@@ -155,10 +163,10 @@ Do not skip reference loading when scaffolding from scratch. The references cont
 
 | Signal | Pattern |
 |---|---|
-| Form with 2+ fields or an API call | Form pattern — always (`.schema.ts` + `.controller.ts` + `.view.tsx` in separate files) |
+| Form with 2+ fields or an API call | Form pattern — always (`.schema.ts` + `.controller.ts` + `.feature.tsx` + `.view.tsx`) |
 | Form with 1 field, no API call | Inline — the separation is overhead |
-| Component that fetches data or has loading/empty/error states | Feature/view pattern (`.controller.ts` + `.presenter.ts` + `.view.tsx`) |
-| Component with conditional logic, computed display, permission-based UI | Feature/view pattern (`.controller.ts` + `.presenter.ts` + `.view.tsx`) |
+| Component that fetches data or has loading/empty/error states | Feature/view pattern (`.controller.ts` + `.presenter.ts` + `.feature.tsx` + `.view.tsx`) |
+| Component with conditional logic, computed display, permission-based UI | Feature/view pattern (`.controller.ts` + `.presenter.ts` + `.feature.tsx` + `.view.tsx`) |
 | Static component that receives props and renders | No pattern needed |
 
 ## References
