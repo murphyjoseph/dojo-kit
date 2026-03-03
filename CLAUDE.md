@@ -35,6 +35,7 @@ eslint.config.js            — ESLint flat config (JS/TS/JSX/TSX)
 | Command | Purpose |
 |---|---|
 | `dojo-kit-init` | Scan repo, detect stack, generate `dojo-kit.yaml` configuration |
+| `dojo-kit-checklist` | Audit codebase health, output prioritized `docs/CHECKLIST.md` with trackable checkboxes |
 
 ## Linting
 
