@@ -118,7 +118,7 @@ These are violations — if you see these patterns in your output, stop and fix 
 | `useState` per field instead of a form library + schema | Use schema file + form library |
 | Inline `fetch()` or direct API client call in feature | Use gateway (`.api.ts`) + query/mutation hooks (`.queries.ts`/`.mutations.ts`) |
 | Loading/empty/error handled with inline ternaries in one component | Use `.presenter.ts` + `.view.tsx` with `renderAs` contract |
-| All logic in one file | Split by concern: `.schema.ts` + `.controller.ts` + `.view.tsx` (forms) or `.controller.ts` + `.presenter.ts` + `.view.tsx` (features) |
+| All logic in one file | Split by concern: `.schema.ts` + `.controller.ts` + `.feature.tsx` + `.view.tsx` (forms) or `.controller.ts` + `.presenter.ts` + `.feature.tsx` + `.view.tsx` (features) |
 | Type-based directories (`hooks/`, `schemas/`, `components/`, `presenters/`) | Colocate by concern — related files live together in the same directory |
 | Query/mutation hooks in a `hooks/` folder | Colocate in `api/` next to the gateway file they wrap |
 | Tests in a separate `__tests__/` directory or top-level `tests/` folder | Colocate `.test.ts` files next to the source they test |

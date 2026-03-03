@@ -11,7 +11,7 @@ How to structure forms so that validation, submission, and rendering are separat
 | One schema is the validation truth | Nothing else validates — not the view, not the handler |
 | The form doesn't decide what happens next | It fires `onSuccess`; the parent handles consequences |
 
-## The Three Concerns
+## The Four Concerns
 
 ### 1. Schema (Validation Truth)
 

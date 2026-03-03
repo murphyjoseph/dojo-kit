@@ -22,7 +22,7 @@ Forms separate API logic from rendering via a custom hook. Features separate dec
 
 These rules are **library-agnostic** — they apply whether you use react-hook-form, TanStack Form, Formik, or anything else. The separation is structural, not API-level.
 
-A form separates into three concerns — the controller is the non-negotiable separation:
+A form separates into four concerns — the controller is the non-negotiable separation:
 
 | Concern | File | Owns | Does not own |
 |---|---|---|---|
@@ -72,7 +72,7 @@ function CreateItemPage() {
 }
 ```
 
-The correct version has three files (`.schema.ts` + `.controller.ts` + `.view.tsx`) as specified above. The form fires `onSuccess`; the parent handles toasts, navigation, and resets.
+The correct version has four files (`.schema.ts` + `.controller.ts` + `.feature.tsx` + `.view.tsx`) as specified above. The form fires `onSuccess`; the parent handles toasts, navigation, and resets.
 
 ### Expected Files for a Form Feature
 
@@ -92,7 +92,7 @@ Never scatter these across `schemas/`, `hooks/`, `components/` directories. They
 
 ## Feature/View Pattern
 
-A feature with state and business logic separates into three layers:
+A feature with state and business logic separates into four layers:
 
 | Layer | File suffix | Responsibility | Uses framework? |
 |---|---|---|---|
