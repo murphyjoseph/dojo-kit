@@ -92,22 +92,44 @@ export function useItemForm({ item, onSuccess }: UseItemFormOptions) {
 - Rendering or JSX
 - Navigation, toasts, or dialog closing (that's `onSuccess`)
 
-### 3. View (Thin Render Layer)
+### 3. Feature (Wiring Layer)
 
-The view sets up the form library, composes fields, and wires the controller. It does not import mutations, construct payloads, or decide what happens after success.
+The feature component is the `"use client"` boundary. It calls the controller hook and passes props to the view. It contains no logic — just wiring.
 
 ```typescript
-// features/items/create-item/item-form.view.tsx
+// features/items/create-item/item-form.feature.tsx
+"use client"
 
-interface ItemFormProps {
+import { useItemForm } from "./item-form.controller"
+import { ItemFormView } from "./item-form.view"
+
+interface ItemFormFeatureProps {
   item?: Item | null;
   onSuccess: (item: Item) => void;
 }
 
-export function ItemForm({ item, onSuccess }: ItemFormProps) {
+export function ItemFormFeature({ item, onSuccess }: ItemFormFeatureProps) {
   const { handleSubmit, isPending, error } = useItemForm({ item, onSuccess });
+  return <ItemFormView item={item} handleSubmit={handleSubmit} isPending={isPending} error={error} />
+}
+```
 
-  // Form library setup lives here — this is fine
+### 4. View (Pure Render Layer)
+
+The view receives all data as props. No hooks, no `"use client"`. It sets up the form library, composes fields, and renders — nothing else.
+
+```typescript
+// features/items/create-item/item-form.view.tsx
+import type { ItemFormValues } from "./item-form.schema"
+
+interface ItemFormViewProps {
+  item?: Item | null;
+  handleSubmit: (values: ItemFormValues) => Promise<void>;
+  isPending: boolean;
+  error: Error | null;
+}
+
+export function ItemFormView({ item, handleSubmit, isPending, error }: ItemFormViewProps) {
   const form = useForm({
     defaultValues: {
       title: item?.title ?? '',
@@ -116,7 +138,6 @@ export function ItemForm({ item, onSuccess }: ItemFormProps) {
       status: item?.status ?? 'todo',
     },
     onSubmit: async ({ value }) => handleSubmit(value),
-    // ...library-specific config (resolver, validators, etc.)
   });
 
   return (
@@ -131,7 +152,7 @@ export function ItemForm({ item, onSuccess }: ItemFormProps) {
 }
 ```
 
-**The view imports the controller, not the mutations.** If you see `useCreateItem()` or `useMutation()` in a `.view.tsx` file, that's a violation.
+**The view never imports the controller or mutations.** If you see `useItemForm()`, `useCreateItem()`, or `useMutation()` in a `.view.tsx` file, that's a violation. The feature component wires them together.
 
 ## Anti-Pattern: The Monolith Form
 
